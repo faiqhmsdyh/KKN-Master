@@ -1,0 +1,240 @@
+/* ==================== MANAJEMEN AKUN COMPONENT STYLES ==================== */
+/* ManajemenAkun component: user CRUD forms and user list table.
+   Uses global utilities: .input-modern, .btn-primary, .btn-success, glass-card
+   
+   ManajemenAkun-specific styles and overrides below.
+*/
+
+/* Header styling */
+.manajemen-akun-header {
+  margin-bottom: 1.5rem;
+}
+
+.manajemen-akun-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Main container grid */
+.manajemen-akun-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .manajemen-akun-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Form section */
+.manajemen-akun-form-section {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.manajemen-akun-form-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: #0f172a;
+}
+
+.manajemen-akun-form-group {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.manajemen-akun-form-group label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #1e293b;
+}
+
+.manajemen-akun-form-group input,
+.manajemen-akun-form-group select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.manajemen-akun-form-group input:focus,
+.manajemen-akun-form-group select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Form button group */
+.manajemen-akun-btn-group {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.manajemen-akun-btn-group button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.manajemen-akun-btn-submit {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.manajemen-akun-btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.manajemen-akun-btn-cancel {
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.manajemen-akun-btn-cancel:hover {
+  background: rgba(100, 116, 139, 0.2);
+}
+
+/* User list section */
+.manajemen-akun-list-section {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.manajemen-akun-list-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: #0f172a;
+}
+
+/* User list container with scroll */
+.manajemen-akun-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* User list item */
+.manajemen-akun-user-item {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.manajemen-akun-user-item:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.manajemen-akun-user-info {
+  flex: 1;
+}
+
+.manajemen-akun-user-name {
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.manajemen-akun-user-details {
+  font-size: 0.85rem;
+  color: #64748b;
+  display: flex;
+  gap: 1rem;
+}
+
+.manajemen-akun-user-role {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* User item actions */
+.manajemen-akun-user-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.manajemen-akun-user-actions button {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.manajemen-akun-btn-edit {
+  background: rgba(250, 204, 21, 0.2);
+  color: #ca8a04;
+}
+
+.manajemen-akun-btn-edit:hover {
+  background: rgba(250, 204, 21, 0.3);
+}
+
+.manajemen-akun-btn-delete {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.manajemen-akun-btn-delete:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+/* Empty state */
+.manajemen-akun-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+/* Loading state */
+.manajemen-akun-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #64748b;
+}

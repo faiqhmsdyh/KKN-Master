@@ -1,0 +1,249 @@
+/* ==================== AUTOGROUP COMPONENT STYLES ==================== */
+/* Autogroup component: 3-step stepper, upload card, parameter panel, results display.
+   Uses global utilities: .modern-card, .glass-card, .btn-primary, .input-modern
+   
+   Autogroup-specific styles and overrides below.
+*/
+
+/* Main autogroup header */
+.autogroup-header {
+  margin-bottom: 2rem;
+}
+
+.autogroup-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Step stepper UI */
+.autogroup-stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 0 1.5rem 0;
+  position: relative;
+}
+
+.autogroup-stepper::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 5%;
+  right: 5%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+  z-index: 0;
+}
+
+.autogroup-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 1;
+  position: relative;
+  flex: 1;
+}
+
+.autogroup-step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #64748b;
+  transition: all 0.3s ease;
+}
+
+.autogroup-step.active .autogroup-step-number {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-color: #3b82f6;
+  color: white;
+  box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1);
+}
+
+.autogroup-step.completed .autogroup-step-number {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: #10b981;
+  color: white;
+}
+
+.autogroup-step-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  text-align: center;
+}
+
+.autogroup-step.active .autogroup-step-label {
+  color: #3b82f6;
+}
+
+/* Upload card styling */
+.autogroup-upload-card {
+  border: 2px dashed rgba(59, 130, 246, 0.4);
+  border-radius: 1rem;
+  padding: 2.5rem;
+  text-align: center;
+  background: rgba(59, 130, 246, 0.02);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.autogroup-upload-card:hover {
+  border-color: rgba(59, 130, 246, 0.7);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.autogroup-upload-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.autogroup-upload-text {
+  font-size: 1rem;
+  color: #475569;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.autogroup-upload-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.autogroup-upload-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3);
+}
+
+/* Step 2 parameter panel */
+.autogroup-param-panel {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-top: 1.5rem;
+}
+
+.autogroup-param-header {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.autogroup-param-filename {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.autogroup-param-body {
+  padding: 1.5rem;
+}
+
+/* Grouping result display */
+.autogroup-result-container {
+  margin-top: 2rem;
+  animation: slideInUp 0.5s ease-out;
+}
+
+.autogroup-result-group {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.autogroup-result-group:hover {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.autogroup-group-header {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.autogroup-group-members {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.autogroup-group-location {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 0.375rem;
+  color: #10b981;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* Export button container */
+.autogroup-export-section {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.autogroup-export-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Loading state */
+.autogroup-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: #64748b;
+}
+
+.autogroup-loading::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

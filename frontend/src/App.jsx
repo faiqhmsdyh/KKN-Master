@@ -1,122 +1,172 @@
-import React, { useState } from "react";
+import React, { useState, useRef, createContext } from "react";
+import './App.css'
 import {
   HomeIcon,
   MapIcon,
   UsersIcon,
+  CpuIcon,
   ClockIcon,
   UploadIcon,
-} from "lucide-react"; // pastikan sudah install: npm i lucide-react
+  FileSpreadsheetIcon,
+  AlertCircleIcon,
+  CheckCircleIcon,
+  LoaderIcon,
+  BellIcon,
+  SettingsIcon,
+  GraduationCapIcon,
+  ClipboardListIcon,
+  FilterIcon,
+  DownloadIcon,
+  HeartPulseIcon,
+  CarIcon,
+} from "lucide-react";
+
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
+import Dashboard from './components/Dashboard';
+import Lokasi from './components/Lokasi';
+import Autogroup from './components/Autogroup';
+import Riwayat from './components/Riwayat';
+import Kriteria from './components/Kriteria';
+import LocationModal from './components/LocationModal';
+import ManajemenAkun from './components/ManajemenAkun';
+import Login from './components/Login';
+
+export const ThemeContext = createContext();
 
 export default function App() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [excelData, setExcelData] = useState(null);
+  const [importStatus, setImportStatus] = useState({ type: "", message: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [locationForm, setLocationForm] = useState({ lokasi: "", desa_kecamatan: "", kabupaten: "", kuota: "", latitude: "", longitude: "" });
+  const [locationData, setLocationData] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleLogout = () => {
+    setUser(null);
+    setActiveTab('dashboard');
+  };
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+  };
 
   const tabs = [
-    { key: "dashboard", label: "Dashboard", icon: <HomeIcon size={18} /> },
-    { key: "lokasi", label: "Data Lokasi", icon: <MapIcon size={18} /> },
-    { key: "autogroup", label: "Autogroup", icon: <UsersIcon size={18} /> },
-    { key: "riwayat", label: "Riwayat", icon: <ClockIcon size={18} /> },
+    { 
+      key: "dashboard", 
+      label: "Dashboard", 
+      icon: <HomeIcon size={20} className="stroke-2" />,
+      description: "Ringkasan dan statistik"
+    },
+    { 
+      key: "lokasi", 
+      label: "Data Lokasi", 
+      icon: <MapIcon size={20} className="stroke-2" />,
+      description: "Manajemen lokasi KKN"
+    },
+    { 
+      key: "kriteria", 
+      label: "Kelola Kriteria", 
+      icon: <FilterIcon size={20} className="stroke-2" />,
+      description: "Atur kriteria pengelompokan"
+    },
+    { 
+      key: "autogroup", 
+      label: "Autogroup", 
+      icon: <CpuIcon size={20} className="stroke-2" />,
+      description: "Generate kelompok otomatis"
+    },
+    { 
+      key: "riwayat", 
+      label: "Riwayat", 
+      icon: <ClockIcon size={20} className="stroke-2" />,
+      description: "Histori penempatan"
+    },
   ];
+  // Show login if not authenticated
+  if (!user) {
+    return (
+      <ThemeContext.Provider value={{ isDarkMode, setIsDarkMode }}>
+        <div className={isDarkMode ? "min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" : "min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50"}>
+          <Login onLogin={handleLogin} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+        </div>
+      </ThemeContext.Provider>
+    );
+  }
 
   return (
-    <div className="flex h-screen bg-gray-50 text-gray-800">
-      {/* Sidebar */}
-      <aside className="w-64 bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 flex flex-col shadow-lg">
-        <div className="p-6 text-2xl font-bold tracking-wide border-b border-gray-700">
-          🚀 KKN AutoGroup
+    <ThemeContext.Provider value={{ isDarkMode, setIsDarkMode }}>
+      <div className={isDarkMode ? "min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" : "min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50"}>
+        <Header user={user} onLogout={handleLogout} />
+
+        <div className="relative w-full">
+          <Sidebar tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+
+          <main className={isDarkMode 
+            ? "ml-24 flex-1 min-h-[calc(100vh-80px)] overflow-y-auto px-8 py-8 bg-gray-800/50" 
+            : "ml-24 flex-1 min-h-[calc(100vh-80px)] overflow-y-auto px-8 py-8 bg-white/30"}>
+            {activeTab === 'dashboard' && <Dashboard />}
+            {activeTab === 'lokasi' && <Lokasi setShowLocationModal={setShowLocationModal} locationData={locationData} setLocationData={setLocationData} setLocationForm={setLocationForm} setEditingId={setEditingId} />}
+            {activeTab === 'kriteria' && <Kriteria />}
+            {activeTab === 'akun' && <ManajemenAkun />}
+            {activeTab === 'autogroup' && <Autogroup fileInputRef={fileInputRef} excelData={excelData} setExcelData={setExcelData} importStatus={importStatus} setImportStatus={setImportStatus} isLoading={isLoading} setIsLoading={setIsLoading} />}
+            {activeTab === 'riwayat' && <Riwayat />}
+          </main>
         </div>
-        <nav className="flex-1 p-4 space-y-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`w-full flex items-center gap-3 text-left px-4 py-2.5 rounded-xl transition-all duration-200 ${
-                activeTab === tab.key
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "hover:bg-gray-700/60 text-gray-300"
-              }`}
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="p-4 text-sm border-t border-gray-700 text-gray-400 text-center">
-          © 2025 KKN System
-        </div>
-      </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-10 py-8">
-        <h1 className="text-3xl font-bold mb-8 flex items-center gap-3">
-          {tabs.find((t) => t.key === activeTab)?.icon}
-          {tabs.find((t) => t.key === activeTab)?.label}
-        </h1>
+        <LocationModal show={showLocationModal} setShow={setShowLocationModal} locationForm={locationForm} setLocationForm={setLocationForm} editingId={editingId} onSave={async () => {
+        try {
+          const payload = {
+            lokasi: locationForm.lokasi,
+            desa_kecamatan: locationForm.desa_kecamatan || null,
+            kabupaten: locationForm.kabupaten || null,
+            kuota: Number(locationForm.kuota) || 0,
+            latitude: locationForm.latitude ? parseFloat(locationForm.latitude) : null,
+            longitude: locationForm.longitude ? parseFloat(locationForm.longitude) : null,
+            fakes: locationForm.fakes ? 1 : 0,
+          };
 
-        {/* Dashboard */}
-        {activeTab === "dashboard" && (
-          <section className="space-y-8 animate-fadeIn">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { title: "Total Mahasiswa", value: 0, color: "bg-blue-500" },
-                { title: "Desa Tersedia", value: 0, color: "bg-green-500" },
-                { title: "Riwayat Penempatan", value: 0, color: "bg-purple-500" },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-2xl p-6 shadow hover:shadow-lg transition-all border border-gray-100"
-                >
-                  <h2 className="text-gray-500 text-sm">{item.title}</h2>
-                  <p className="text-4xl font-bold mt-2 text-gray-800">
-                    {item.value}
-                  </p>
-                  <div className={`h-1 w-16 mt-3 rounded-full ${item.color}`}></div>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 shadow border border-gray-100">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <UploadIcon size={18} /> Import Excel Mahasiswa
-              </h2>
-              <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-6 cursor-pointer hover:border-blue-400 transition">
-                <input type="file" className="hidden" />
-                <p className="text-gray-600 text-sm">
-                  Klik untuk upload file Excel atau seret ke sini
-                </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Format: nim, nama, prodi, fakultas, kesehatan, kendaraan, preferensi_lokasi
-                </p>
-              </label>
-            </div>
-          </section>
-        )}
-
-        {/* Data Lokasi */}
-        {activeTab === "lokasi" && (
-          <section className="bg-white rounded-2xl p-6 shadow border border-gray-100 animate-fadeIn">
-            <h2 className="text-lg font-semibold mb-4">Data Lokasi</h2>
-            <p className="text-gray-600">Tabel lokasi akan ditampilkan di sini.</p>
-          </section>
-        )}
-
-        {/* Autogroup */}
-        {activeTab === "autogroup" && (
-          <section className="bg-white rounded-2xl p-6 shadow border border-gray-100 animate-fadeIn">
-            <h2 className="text-lg font-semibold mb-4">Autogroup Generator</h2>
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md">
-              Generate Kelompok
-            </button>
-          </section>
-        )}
-
-        {/* Riwayat */}
-        {activeTab === "riwayat" && (
-          <section className="bg-white rounded-2xl p-6 shadow border border-gray-100 animate-fadeIn">
-            <h2 className="text-lg font-semibold mb-4">Riwayat Penempatan</h2>
-            <p className="text-gray-600">Data riwayat akan muncul di sini.</p>
-          </section>
-        )}
-      </main>
-    </div>
+          if (editingId) {
+            // UPDATE
+            const res = await fetch(`http://localhost:4000/lokasi/${editingId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            if (!res.ok) throw new Error('Update failed');
+            alert('Lokasi berhasil diupdate');
+          } else {
+            // CREATE
+            const res = await fetch('http://localhost:4000/lokasi', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            if (!res.ok) throw new Error('Save failed');
+            const created = await res.json();
+            alert('Lokasi berhasil disimpan (ID: ' + created.id_lokasi + ')');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Gagal menyimpan lokasi. Cek console untuk detail.');
+          } finally {
+          setShowLocationModal(false);
+          setLocationForm({ lokasi: '', desa_kecamatan: '', kabupaten: '', kuota: '', latitude: '', longitude: '', fakes: false });
+          setEditingId(null);
+          // Refresh table
+          const res = await fetch('http://localhost:4000/lokasi');
+          if (res.ok) {
+            const data = await res.json();
+            setLocationData(data);
+          }
+        }
+      }} />
+      </div>
+    </ThemeContext.Provider>
   );
 }

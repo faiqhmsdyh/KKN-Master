@@ -1,36 +1,347 @@
+/* ============================================ APP.CSS =====================================================
+   This file contains:
+   ✓ Global utilities (.btn-*, .input-*, .glass-*, .badge-*, .hover-*, .animate-*)
+   ✓ Layout & structure (app-sidebar, html/body/root base styles)
+   ✓ Animations (@keyframes)
+   ✓ Scrollbar styling
+   
+   Component-specific CSS files (imported by their components):
+   - Riwayat.css          → Riwayat component styles
+   - Lokasi.css           → Lokasi component styles
+   - Kriteria.css         → Kriteria component styles
+   - Autogroup.css        → Autogroup component styles
+   - ManajemenAkun.css    → ManajemenAkun component styles
+   - LocationModal.css    → LocationModal component styles
+   - Dashboard.css        → Dashboard component styles
+   - index.css            → Global base + Tailwind directives (root styles)
+   
+   This structure keeps App.css focused on utilities and layout while allowing
+   each component to maintain its own styling without excessive file scrolling.
+   ======================================================================================*/
+
+/* Make app use full window */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+
+
+/* ==================== MAIN CONTENT FONT STANDARDIZATION ==================== */
+section, .glass-card, .modern-card {
+  font-size: 0.95rem;
 }
 
-@keyframes logo-spin {
+/* Page Title Styling - Consistent & Larger */
+section > div:first-child h2,
+section > div h2:first-of-type {
+  font-size: 3rem !important;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+  color: inherit;
+}
+
+section > div:first-child p,
+section > div p:nth-of-type(1) {
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+section h1, section h2, section h3 {
+  line-height: 1.3;
+}
+
+section h1 {
+  font-size: 2rem;
+}
+
+section h2 {
+  font-size: 1.5rem;
+}
+
+section h3 {
+  font-size: 1.125rem;
+}
+
+section p, section span, section input, section select, section label {
+  font-size: 0.95rem;
+}
+
+/* ==================== MODERN ANIMATIONS ==================== */
+@keyframes fadeIn {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
   }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.5s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ==================== MODERN CARDS ==================== */
+.modern-card {
+  @apply rounded-[48px] p-8 backdrop-blur-md border transition-all duration-300
+         bg-white/40 dark:bg-slate-700/30 
+         border-blue-200/40 dark:border-slate-600/40
+         shadow-lg dark:shadow-2xl
+         hover:shadow-2xl dark:hover:shadow-2xl
+         hover:-translate-y-2;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.glass-card {
+  @apply rounded-[48px] p-8 backdrop-blur-md border transition-all duration-300
+         bg-white/40 dark:bg-slate-700/30 
+         border-blue-200/40 dark:border-slate-600/40
+         shadow-xl dark:shadow-2xl;
+}
+
+.input-modern {
+  @apply px-5 py-3 rounded-2xl backdrop-blur-sm border transition-all duration-300
+         bg-white/50 dark:bg-slate-700/40
+         border-blue-200/40 dark:border-slate-600/40
+         text-slate-900 dark:text-white
+         placeholder-slate-400 dark:placeholder-slate-400
+         focus:border-blue-500/60 dark:focus:border-blue-500/60
+         focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-500/20;
+}
+
+/* Button Styling */
+.btn-primary {
+  @apply px-6 py-3.5 rounded-2xl font-black uppercase tracking-widest text-white
+         transition-all duration-300 flex items-center gap-2
+         bg-gradient-to-r from-blue-600 to-indigo-600
+         hover:from-blue-500 hover:to-indigo-500
+         hover:shadow-2xl hover:scale-105;
+}
+
+.btn-secondary {
+  @apply px-5 py-3 rounded-2xl font-black uppercase tracking-widest
+         transition-all duration-300 flex items-center gap-2
+         bg-slate-100/50 dark:bg-slate-700/40
+         hover:bg-slate-200/50 dark:hover:bg-slate-700/60
+         border border-slate-200/40 dark:border-slate-600/40
+         text-slate-700 dark:text-slate-300
+         hover:text-slate-900 dark:hover:text-white
+         hover:shadow-lg;
+}
+
+.btn-success {
+  @apply px-5 py-3 rounded-2xl font-black uppercase tracking-widest text-white
+         transition-all duration-300 flex items-center gap-2
+         bg-emerald-600/50 hover:bg-emerald-600/70
+         border border-emerald-500/40
+         hover:shadow-lg hover:scale-105;
+}
+
+.modern-card-interactive {
+  @apply modern-card cursor-pointer;
+}
+
+.modern-card-interactive:hover {
+  @apply shadow-xl scale-105;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn-modern {
+  @apply px-5 py-2.5 rounded-xl font-medium
+         transition-all duration-300 ease-out
+         hover:shadow-lg active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-offset-2
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary {
+  @apply btn-modern
+         bg-gradient-to-r from-blue-600 to-indigo-600
+         text-white hover:from-blue-700 hover:to-indigo-700
+         shadow-md hover:shadow-lg;
+}
+
+.btn-success {
+  @apply btn-modern
+         bg-gradient-to-r from-emerald-500 to-teal-600
+         text-white hover:from-emerald-600 hover:to-teal-700
+         shadow-md hover:shadow-lg;
+}
+
+.btn-secondary {
+  @apply btn-modern
+         bg-gray-200/80 dark:bg-gray-700/80
+         text-gray-800 dark:text-gray-300
+         hover:bg-gray-300 dark:hover:bg-gray-600;
+}
+
+/* ==================== INPUTS ==================== */
+.input-modern {
+  @apply px-4 py-2.5 rounded-xl
+         bg-white/70 dark:bg-gray-800/70 
+         border-2 border-transparent
+         hover:border-blue-400/50 dark:hover:border-blue-400/30
+         focus:border-blue-500 dark:focus:border-blue-400
+         focus:outline-none focus:ring-2 focus:ring-blue-400/20
+         text-gray-900 dark:text-white
+         placeholder-gray-500 dark:placeholder-gray-400
+         transition-all duration-200 ease-out
+         backdrop-blur-sm;
+}
+
+/* ==================== GLASSMORPHISM ==================== */
+.glass {
+  @apply bg-white/10 dark:bg-gray-800/10 
+         backdrop-blur-xl border border-white/20 dark:border-gray-700/30
+         rounded-2xl;
+}
+
+.glass-card {
+  @apply glass p-6 shadow-xl hover:shadow-2xl transition-all duration-300;
+}
+
+/* ==================== GRADIENTS ==================== */
+.gradient-text {
+  @apply bg-gradient-to-r from-blue-600 to-indigo-600 
+         bg-clip-text text-transparent;
+}
+
+.gradient-text-alt {
+  @apply bg-gradient-to-r from-emerald-500 to-teal-600
+         bg-clip-text text-transparent;
+}
+
+/* ==================== STATUS BADGES ==================== */
+.badge-success {
+  @apply px-3 py-1 rounded-full text-sm font-medium
+         bg-emerald-100 dark:bg-emerald-900/30
+         text-emerald-700 dark:text-emerald-400
+         border border-emerald-300 dark:border-emerald-700/50;
+}
+
+.badge-error {
+  @apply px-3 py-1 rounded-full text-sm font-medium
+         bg-red-100 dark:bg-red-900/30
+         text-red-700 dark:text-red-400
+         border border-red-300 dark:border-red-700/50;
+}
+
+.badge-warning {
+  @apply px-3 py-1 rounded-full text-sm font-medium
+         bg-amber-100 dark:bg-amber-900/30
+         text-amber-700 dark:text-amber-400
+         border border-amber-300 dark:border-amber-700/50;
+}
+
+/* ==================== HOVER EFFECTS ==================== */
+.hover-lift {
+  @apply transition-all duration-300 ease-out
+         hover:shadow-2xl hover:-translate-y-2;
+}
+
+.hover-scale {
+  @apply transition-transform duration-300 ease-out
+         hover:scale-105;
+}
+
+.hover-glow {
+  @apply transition-all duration-300 ease-out
+         hover:shadow-lg hover:shadow-blue-500/50;
+}
+
+/* ==================== SCROLL ==================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-900/50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 dark:bg-gray-600 rounded-full
+         hover:bg-gray-500 dark:hover:bg-gray-500;
 }
 
 .card {
@@ -39,4 +350,117 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Sidebar styles to match Gmail-like vertical navigation */
+.app-sidebar {
+  width: 240px;
+  background: linear-gradient(180deg, #f7fafc 0%, #ffffff 100%);
+  border-right: 1px solid rgba(15, 23, 42, 0.04);
+  min-height: calc(100vh - 80px);
+  position: sticky;
+  top: 80px;
+}
+
+.compose-btn {
+  background: #e8f0ff;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.compose-btn svg {
+  transform: translateY(-1px);
+}
+
+.sidebar-item {
+  color: #475569;
+  background: transparent;
+}
+
+.sidebar-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.sidebar-item.active {
+  background: linear-gradient(90deg, #e6f0ff, #eef2ff);
+  color: #0f172a;
+  box-shadow: 0 1px 0 rgba(2, 6, 23, 0.06) inset;
+}
+
+.sidebar-item .sidebar-label {
+  display: inline-block;
+}
+
+/* ==================== VSCODE STYLE SIDEBAR ==================== */
+.app-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
+}
+
+.app-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.app-sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.3);
+  border-radius: 3px;
+}
+
+.app-sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 116, 139, 0.5);
+}
+
+.scrollbar-dark::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.2);
+  border-radius: 3px;
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 116, 139, 0.4);
+}
+
+.scrollbar-light::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-light::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-light::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
+}
+
+.scrollbar-light::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.5);
+}
+
+/* Compact mode for small screens: show top header nav (existing) and hide labels */
+@media (max-width: 767px) {
+  .app-sidebar { 
+    display: none; 
+  }
+}
+
+/* Slightly compact the main content spacing when sidebar present */
+@media (min-width: 768px) {
+  main.flex-1 { 
+    padding-left: 28px; 
+    padding-right: 28px; 
+    min-height: calc(100vh - 80px); 
+  }
 }

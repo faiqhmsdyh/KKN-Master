@@ -1,0 +1,123 @@
+/* ==================== LOKASI COMPONENT STYLES ==================== */
+/* Lokasi component manages location data with a clean table/list interface.
+   Uses global utilities: .input-modern, .btn-primary, .btn-secondary, glass-card
+   
+   Lokasi-specific styles and overrides below.
+*/
+
+/* Lokasi header section */
+.lokasi-header {
+  margin-bottom: 1.5rem;
+}
+
+.lokasi-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Search and filter bar for locations */
+.lokasi-search-bar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.lokasi-search-bar input,
+.lokasi-search-bar select {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Location table styling */
+.lokasi-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.lokasi-table thead tr {
+  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.lokasi-table tbody tr {
+  border-bottom: 1px solid rgba(200, 200, 200, 0.1);
+  transition: all 0.2s ease;
+}
+
+.lokasi-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.lokasi-table td,
+.lokasi-table th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.lokasi-table th {
+  font-weight: 600;
+  color: #1e293b;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+/* Action buttons in table */
+.lokasi-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.lokasi-actions button {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 0.375rem;
+}
+
+/* Lokasi card display (if using card layout instead of table) */
+.lokasi-card {
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.lokasi-card:hover {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+.lokasi-card h3 {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #0f172a;
+}
+
+.lokasi-card p {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+/* Empty state */
+.lokasi-empty {
+  text-align: center;
+  padding: 2rem;
+  opacity: 0.6;
+}
+
+/* Add location button */
+.lokasi-add-btn {
+  margin-bottom: 1rem;
+}
