@@ -299,13 +299,74 @@ pool.query(`
     tanggal_selesai DATE NULL,
     is_active BOOLEAN DEFAULT 0,
     jumlah_lokasi INT DEFAULT 0,
+    jumlah_dosen INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_active (is_active),
     INDEX idx_tahun (tahun_akademik)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 `, (err) => {
   if (err) console.error('CREATE TABLE periode_kkn error:', err);
-  else console.log('✓ Table periode_kkn ready');
+  else {
+    console.log('✓ Table periode_kkn ready');
+    
+    // Auto-seed periode 2024/2025 if not exists
+    pool.query(`
+      SELECT id_periode FROM periode_kkn WHERE angkatan = '2024' LIMIT 1
+    `, (checkErr, rows) => {
+      if (checkErr) {
+        console.error('Error checking periode 2024:', checkErr);
+        return;
+      }
+      
+      if (rows.length === 0) {
+        // Insert periode 2024/2025
+        console.log('⚙️ Creating periode 2024/2025...');
+        pool.query(`
+          INSERT INTO periode_kkn (nama_periode, tahun_akademik, angkatan, is_active, tanggal_mulai, tanggal_selesai)
+          VALUES ('KKN 2024/2025', '2024/2025', '2024', 1, '2024-07-01', '2025-06-30')
+        `, (insertErr, result) => {
+          if (insertErr) {
+            console.error('❌ Error creating periode 2024/2025:', insertErr.message);
+            return;
+          }
+          
+          const newPeriodeId = result.insertId;
+          console.log(`✅ Periode 2024/2025 created with ID: ${newPeriodeId}`);
+          
+          // Update all dosen with NULL id_periode to use this periode
+          pool.query(`
+            UPDATE data_dosen 
+            SET id_periode = ?
+            WHERE id_periode IS NULL
+          `, [newPeriodeId], (updateErr, updateResult) => {
+            if (updateErr) {
+              console.error('❌ Error updating dosen to periode 2024/2025:', updateErr.message);
+            } else if (updateResult.affectedRows > 0) {
+              console.log(`✅ ${updateResult.affectedRows} dosen assigned to periode 2024/2025`);
+            } else {
+              console.log('✓ No dosen needed periode assignment');
+            }
+          });
+        });
+      } else {
+        console.log('✓ Periode 2024/2025 already exists');
+        
+        // Still try to update NULL periode dosens to existing 2024 periode
+        const existingPeriodeId = rows[0].id_periode;
+        pool.query(`
+          UPDATE data_dosen 
+          SET id_periode = ?
+          WHERE id_periode IS NULL
+        `, [existingPeriodeId], (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error('❌ Error updating dosen to existing periode:', updateErr.message);
+          } else if (updateResult.affectedRows > 0) {
+            console.log(`✅ ${updateResult.affectedRows} dosen assigned to periode 2024/2025`);
+          }
+        });
+      }
+    });
+  }
 });
 
 // Ensure created_at column exists for older installs
@@ -325,6 +386,121 @@ pool.query(`ALTER TABLE data_lokasi_kkn ADD COLUMN IF NOT EXISTS kontak_person T
     console.log('✓ ensured kontak_person column exists on data_lokasi_kkn');
   }
 });
+
+// Migration: Add jumlah_dosen column to periode_kkn if not exists
+console.log('Checking if jumlah_dosen column exists in periode_kkn...');
+pool.query(`
+  SELECT COLUMN_NAME 
+  FROM INFORMATION_SCHEMA.COLUMNS 
+  WHERE TABLE_SCHEMA = DATABASE() 
+    AND TABLE_NAME = 'periode_kkn' 
+    AND COLUMN_NAME = 'jumlah_dosen'
+`, (err, rows) => {
+  if (err) {
+    console.error('Error checking jumlah_dosen column:', err);
+    return;
+  }
+  
+  if (rows.length === 0) {
+    // Column doesn't exist, add it
+    console.log('⚙️ Adding jumlah_dosen column to periode_kkn...');
+    pool.query(`
+      ALTER TABLE periode_kkn 
+      ADD COLUMN jumlah_dosen INT DEFAULT 0 AFTER jumlah_lokasi
+    `, (alterErr) => {
+      if (alterErr) {
+        console.error('❌ Error adding jumlah_dosen column:', alterErr.message);
+      } else {
+        console.log('✅ Column jumlah_dosen added successfully to periode_kkn');
+        // Immediately update counts for all periodes
+        updateAllPeriodeSummary();
+      }
+    });
+  } else {
+    console.log('✓ Column jumlah_dosen already exists in periode_kkn');
+  }
+});
+
+// Helper function to update periode summary counts (lokasi + dosen)
+function updatePeriodeSummary(id_periode, callback) {
+  if (!id_periode) {
+    if (callback) callback(new Error('id_periode is required'));
+    return;
+  }
+  
+  // Count lokasi
+  pool.query(
+    'SELECT COUNT(*) as count FROM data_lokasi_kkn WHERE id_periode = ?',
+    [id_periode],
+    (err1, lokasiResult) => {
+      if (err1) {
+        console.error('Error counting lokasi:', err1);
+        if (callback) callback(err1);
+        return;
+      }
+      
+      const jumlah_lokasi = lokasiResult[0].count;
+      
+      // Count dosen
+      pool.query(
+        'SELECT COUNT(*) as count FROM data_dosen WHERE id_periode = ?',
+        [id_periode],
+        (err2, dosenResult) => {
+          if (err2) {
+            console.error('Error counting dosen:', err2);
+            if (callback) callback(err2);
+            return;
+          }
+          
+          const jumlah_dosen = dosenResult[0].count;
+          
+          // Update periode_kkn
+          pool.query(
+            'UPDATE periode_kkn SET jumlah_lokasi = ?, jumlah_dosen = ? WHERE id_periode = ?',
+            [jumlah_lokasi, jumlah_dosen, id_periode],
+            (err3) => {
+              if (err3) {
+                console.error('Error updating periode summary:', err3);
+                if (callback) callback(err3);
+              } else {
+                console.log(`✓ Updated periode ${id_periode}: ${jumlah_lokasi} lokasi, ${jumlah_dosen} dosen`);
+                if (callback) callback(null, { jumlah_lokasi, jumlah_dosen });
+              }
+            }
+          );
+        }
+      );
+    }
+  );
+}
+
+// Function to update summary for all periodes
+function updateAllPeriodeSummary() {
+  console.log('🔄 Updating summary for all periodes...');
+  pool.query('SELECT id_periode FROM periode_kkn', (err, rows) => {
+    if (err) {
+      console.error('Error fetching periodes:', err);
+      return;
+    }
+    
+    let completed = 0;
+    const total = rows.length;
+    
+    if (total === 0) {
+      console.log('✓ No periodes to update');
+      return;
+    }
+    
+    rows.forEach(row => {
+      updatePeriodeSummary(row.id_periode, (err) => {
+        completed++;
+        if (completed === total) {
+          console.log(`✅ Updated ${total} periode(s) summary successfully`);
+        }
+      });
+    });
+  });
+}
 
 // Ensure wilayah ID columns exist (id_provinsi, id_kabupaten, id_kecamatan, id_desa)
 console.log('Checking wilayah ID columns in data_lokasi_kkn...');
@@ -593,6 +769,121 @@ pool.query(`
     });
   } else {
     console.log('✓ Column nomor_telepon already exists in detail_hasil_autogrup');
+  }
+});
+
+// Migration: Add periode column to data_dosen if not exists
+// Migration: Change periode from VARCHAR to INT and add foreign key to periode_kkn
+console.log('Checking if id_periode column exists in data_dosen...');
+pool.query(`
+  SELECT COLUMN_NAME, DATA_TYPE
+  FROM INFORMATION_SCHEMA.COLUMNS 
+  WHERE TABLE_SCHEMA = DATABASE() 
+    AND TABLE_NAME = 'data_dosen' 
+    AND COLUMN_NAME IN ('periode', 'id_periode')
+`, (err, rows) => {
+  if (err) {
+    console.error('Error checking periode/id_periode column:', err);
+    return;
+  }
+  
+  const hasOldPeriode = rows.find(r => r.COLUMN_NAME === 'periode');
+  const hasIdPeriode = rows.find(r => r.COLUMN_NAME === 'id_periode');
+  
+  if (hasOldPeriode && !hasIdPeriode) {
+    // Migration: Rename periode to id_periode and change type
+    console.log('⚙️ Migrating periode column to id_periode (INT) with FK...');
+    
+    // Step 1: Add new id_periode column
+    pool.query(`
+      ALTER TABLE data_dosen 
+      ADD COLUMN id_periode INT DEFAULT NULL AFTER prodi
+    `, (alterErr) => {
+      if (alterErr && alterErr.code !== 'ER_DUP_FIELDNAME') {
+        console.error('❌ Error adding id_periode column:', alterErr.message);
+        return;
+      }
+      
+      // Step 2: Migrate data from periode (VARCHAR) to id_periode (INT)
+      // Match year in periode field to angkatan in periode_kkn
+      // Fix collation mismatch by using CAST or COLLATE
+      pool.query(`
+        UPDATE data_dosen d
+        LEFT JOIN periode_kkn p ON CAST(p.angkatan AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci = CAST(d.periode AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+        SET d.id_periode = p.id_periode
+        WHERE d.periode IS NOT NULL AND d.periode REGEXP '^[0-9]{4}$'
+      `, (updateErr) => {
+        if (updateErr) {
+          console.log('⚠️ Warning: Could not migrate old periode data:', updateErr.message);
+        } else {
+          console.log('✓ Migrated old periode data to id_periode');
+        }
+        
+        // Step 3: Drop old periode column
+        pool.query(`ALTER TABLE data_dosen DROP COLUMN periode`, (dropErr) => {
+          if (dropErr && dropErr.code !== 'ER_CANT_DROP_FIELD_OR_KEY') {
+            console.log('⚠️ Could not drop old periode column:', dropErr.message);
+          } else {
+            console.log('✓ Dropped old periode VARCHAR column');
+          }
+          
+          // Step 4: Add foreign key constraint
+          pool.query(`
+            SELECT CONSTRAINT_NAME 
+            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = DATABASE() 
+              AND TABLE_NAME = 'data_dosen' 
+              AND CONSTRAINT_NAME = 'fk_dosen_periode'
+          `, (checkFkErr, fkRows) => {
+            if (checkFkErr) {
+              console.error('Error checking FK:', checkFkErr);
+              return;
+            }
+            
+            if (fkRows.length === 0) {
+              pool.query(`
+                ALTER TABLE data_dosen
+                ADD CONSTRAINT fk_dosen_periode
+                FOREIGN KEY (id_periode) REFERENCES periode_kkn(id_periode)
+                ON DELETE SET NULL ON UPDATE CASCADE,
+                ADD INDEX idx_id_periode (id_periode)
+              `, (fkErr) => {
+                if (fkErr && fkErr.code !== 'ER_DUP_KEY') {
+                  console.error('❌ Error adding FK:', fkErr.message);
+                } else {
+                  console.log('✅ Foreign key fk_dosen_periode added successfully');
+                }
+              });
+            } else {
+              console.log('✓ Foreign key fk_dosen_periode already exists');
+            }
+          });
+        });
+      });
+    });
+  } else if (!hasIdPeriode) {
+    // No periode column exists, add id_periode directly
+    console.log('⚙️ Adding id_periode column to data_dosen...');
+    pool.query(`
+      ALTER TABLE data_dosen 
+      ADD COLUMN id_periode INT DEFAULT NULL AFTER prodi,
+      ADD CONSTRAINT fk_dosen_periode
+      FOREIGN KEY (id_periode) REFERENCES periode_kkn(id_periode)
+      ON DELETE SET NULL ON UPDATE CASCADE,
+      ADD INDEX idx_id_periode (id_periode)
+    `, (alterErr) => {
+      if (alterErr) {
+        if (alterErr.code === 'ER_DUP_FIELDNAME') {
+          console.log('✓ Column id_periode already exists');
+        } else {
+          console.error('❌ Error adding id_periode column:', alterErr.message);
+        }
+      } else {
+        console.log('✅ Column id_periode added successfully to data_dosen');
+      }
+    });
+  } else {
+    console.log('✓ Column id_periode already exists in data_dosen');
   }
 });
 
@@ -2062,6 +2353,17 @@ app.post('/api/locations', async (req, res) => {
           const insertedId = result.insertId;
           console.log('✅ Lokasi baru inserted with ID:', insertedId);
 
+          // 📊 AUTO-UPDATE periode summary if location has periode
+          if (id_periode) {
+            updatePeriodeSummary(id_periode, (updateErr) => {
+              if (updateErr) {
+                console.warn(`⚠️  Failed to update periode summary for id_periode ${id_periode}:`, updateErr.message);
+              } else {
+                console.log(`✅ Periode summary updated for id_periode ${id_periode}`);
+              }
+            });
+          }
+
           // 🏥 AUTO-CALCULATE jarak puskesmas jika ada koordinat
           if (latitude && longitude) {
             console.log('🏥 Auto-calculating puskesmas distance for new location...');
@@ -2154,19 +2456,40 @@ app.put('/api/locations/:id', async (req, res) => {
       }
 
       // No duplicate, proceed with update
-      const updateQuery = 'UPDATE data_lokasi_kkn SET lokasi = ?, id_provinsi = ?, id_kabupaten = ?, id_kecamatan = ?, id_desa = ?, latitude = ?, longitude = ?, id_periode = ?, kontak_person = ? WHERE id_lokasi = ?';
-      const params = [lokasi || null, id_provinsi || null, id_kabupaten || null, id_kecamatan || null, id_desa || null, latitude || null, longitude || null, id_periode || null, kontak_person || null, id];
-
-      pool.query(updateQuery, params, async (err) => {
-        if (err) {
-          console.error('UPDATE error:', err);
-          return res.status(500).json({ error: err.message });
-        }
+      // 📊 First, get old id_periode before updating (to handle periode changes)
+      pool.query('SELECT id_periode FROM data_lokasi_kkn WHERE id_lokasi = ?', [id], (selectErr, selectRows) => {
+        const old_id_periode = selectRows && selectRows.length > 0 ? selectRows[0].id_periode : null;
         
-        console.log('✅ Lokasi updated ID:', id);
+        const updateQuery = 'UPDATE data_lokasi_kkn SET lokasi = ?, id_provinsi = ?, id_kabupaten = ?, id_kecamatan = ?, id_desa = ?, latitude = ?, longitude = ?, id_periode = ?, kontak_person = ? WHERE id_lokasi = ?';
+        const params = [lokasi || null, id_provinsi || null, id_kabupaten || null, id_kecamatan || null, id_desa || null, latitude || null, longitude || null, id_periode || null, kontak_person || null, id];
 
-        // 🏥 AUTO-RECALCULATE jarak puskesmas jika ada koordinat
-        if (latitude && longitude) {
+        pool.query(updateQuery, params, async (err) => {
+          if (err) {
+            console.error('UPDATE error:', err);
+            return res.status(500).json({ error: err.message });
+          }
+          
+          console.log('✅ Lokasi updated ID:', id);
+          
+          // 📊 AUTO-UPDATE periode summary if periode changed
+          const periodesNeedUpdate = new Set();
+          if (old_id_periode) periodesNeedUpdate.add(old_id_periode);
+          if (id_periode) periodesNeedUpdate.add(id_periode);
+          
+          if (periodesNeedUpdate.size > 0) {
+            periodesNeedUpdate.forEach(periodeId => {
+              updatePeriodeSummary(periodeId, (updateErr) => {
+                if (updateErr) {
+                  console.warn(`⚠️  Failed to update periode summary for id_periode ${periodeId}:`, updateErr.message);
+                } else {
+                  console.log(`✅ Periode summary updated for id_periode ${periodeId} after lokasi update`);
+                }
+              });
+            });
+          }
+
+          // 🏥 AUTO-RECALCULATE jarak puskesmas jika ada koordinat
+          if (latitude && longitude) {
           console.log('🏥 Auto-recalculating puskesmas distance for updated location...');
           try {
             const locForCalc = [{
@@ -2214,6 +2537,7 @@ app.put('/api/locations/:id', async (req, res) => {
           return res.status(500).json({ error: err.message });
         }
         res.json(rows[0]);
+        });
       });
       });
     });
@@ -2228,12 +2552,29 @@ app.delete('/api/locations/:id', (req, res) => {
   const id = req.params.id;
   console.log('DELETE /api/locations/:id:', id);
   
-  pool.query('DELETE FROM data_lokasi_kkn WHERE id_lokasi = ?', [id], (err) => {
-    if (err) {
-      console.error('DELETE error:', err);
-      return res.status(500).json({ error: err.message });
-    }
-    res.json({ deletedId: id });
+  // 📊 First, get id_periode before deleting (for summary update)
+  pool.query('SELECT id_periode FROM data_lokasi_kkn WHERE id_lokasi = ?', [id], (selectErr, selectRows) => {
+    const id_periode_to_update = selectRows && selectRows.length > 0 ? selectRows[0].id_periode : null;
+    
+    pool.query('DELETE FROM data_lokasi_kkn WHERE id_lokasi = ?', [id], (err) => {
+      if (err) {
+        console.error('DELETE error:', err);
+        return res.status(500).json({ error: err.message });
+      }
+      
+      // 📊 AUTO-UPDATE periode summary after deletion
+      if (id_periode_to_update) {
+        updatePeriodeSummary(id_periode_to_update, (updateErr) => {
+          if (updateErr) {
+            console.warn(`⚠️  Failed to update periode summary for id_periode ${id_periode_to_update}:`, updateErr.message);
+          } else {
+            console.log(`✅ Periode summary updated after deletion for id_periode ${id_periode_to_update}`);
+          }
+        });
+      }
+      
+      res.json({ deletedId: id });
+    });
   });
 });
 
@@ -2412,7 +2753,8 @@ app.get('/api/periode', (req, res) => {
   console.log('GET /api/periode called');
   const query = `
     SELECT p.*, 
-           (SELECT COUNT(*) FROM data_lokasi_kkn WHERE id_periode = p.id_periode) as jumlah_lokasi
+           (SELECT COUNT(*) FROM data_lokasi_kkn WHERE id_periode = p.id_periode) as lokasi_realtime,
+           (SELECT COUNT(*) FROM data_dosen WHERE id_periode = p.id_periode) as dosen_realtime
     FROM periode_kkn p
     ORDER BY p.id_periode DESC
   `;
@@ -2421,7 +2763,13 @@ app.get('/api/periode', (req, res) => {
       console.error('GET periode error:', err);
       return res.status(500).json({ error: err.message });
     }
-    res.json(rows || []);
+    // Return with both stored and realtime counts
+    const result = rows.map(row => ({
+      ...row,
+      jumlah_lokasi: row.lokasi_realtime, // Use realtime count
+      jumlah_dosen: row.dosen_realtime    // Use realtime count
+    }));
+    res.json(result || []);
   });
 });
 
@@ -2443,7 +2791,8 @@ app.get('/api/periode/:id', (req, res) => {
   console.log('GET /api/periode/:id called:', id);
   const query = `
     SELECT p.*, 
-           (SELECT COUNT(*) FROM data_lokasi_kkn WHERE id_periode = p.id_periode) as jumlah_lokasi
+           (SELECT COUNT(*) FROM data_lokasi_kkn WHERE id_periode = p.id_periode) as lokasi_realtime,
+           (SELECT COUNT(*) FROM data_dosen WHERE id_periode = p.id_periode) as dosen_realtime
     FROM periode_kkn p
     WHERE p.id_periode = ?
   `;
@@ -2455,7 +2804,12 @@ app.get('/api/periode/:id', (req, res) => {
     if (!rows || rows.length === 0) {
       return res.status(404).json({ error: 'Periode tidak ditemukan' });
     }
-    res.json(rows[0]);
+    const result = {
+      ...rows[0],
+      jumlah_lokasi: rows[0].lokasi_realtime,
+      jumlah_dosen: rows[0].dosen_realtime
+    };
+    res.json(result);
   });
 });
 
@@ -2616,6 +2970,61 @@ app.post('/api/periode/:id/activate', (req, res) => {
         return res.status(500).json({ error: updateErr.message });
       }
       res.json({ success: true, id_periode: id });
+    });
+  });
+});
+
+// POST recalculate periode summary (lokasi + dosen counts)
+app.post('/api/periode/:id/recalculate', (req, res) => {
+  const id = req.params.id;
+  console.log('POST /api/periode/:id/recalculate called:', id);
+  
+  updatePeriodeSummary(id, (err, result) => {
+    if (err) {
+      console.error('Recalculate error:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({ 
+      success: true, 
+      id_periode: id,
+      jumlah_lokasi: result.jumlah_lokasi,
+      jumlah_dosen: result.jumlah_dosen
+    });
+  });
+});
+
+// POST recalculate ALL periode summaries
+app.post('/api/periode/recalculate-all', (req, res) => {
+  console.log('POST /api/periode/recalculate-all called');
+  
+  pool.query('SELECT id_periode FROM periode_kkn', (err, rows) => {
+    if (err) {
+      console.error('Error fetching periodes:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    if (rows.length === 0) {
+      return res.json({ success: true, updated: 0, message: 'No periodes to update' });
+    }
+    
+    let completed = 0;
+    let errors = 0;
+    const total = rows.length;
+    
+    rows.forEach(row => {
+      updatePeriodeSummary(row.id_periode, (err) => {
+        if (err) errors++;
+        completed++;
+        
+        if (completed === total) {
+          res.json({ 
+            success: true, 
+            updated: total - errors,
+            failed: errors,
+            total: total
+          });
+        }
+      });
     });
   });
 });
@@ -3866,23 +4275,41 @@ app.patch('/autogroup/hasil/:id/group/:nomor_kelompok/dpl', (req, res) => {
 
 // GET all dosen (with optional search and filter)
 app.get('/api/dosen', (req, res) => {
-  const { search, is_active } = req.query;
+  const { search, is_active, periode, angkatan } = req.query;
   
-  let sql = 'SELECT * FROM data_dosen WHERE 1=1';
+  // Use LEFT JOIN with periode_kkn to allow filtering by year/angkatan
+  let sql = `
+    SELECT d.*, p.nama_periode, p.angkatan, p.tahun_akademik
+    FROM data_dosen d
+    LEFT JOIN periode_kkn p ON d.id_periode = p.id_periode
+    WHERE 1=1
+  `;
   const params = [];
   
   if (search) {
-    sql += ' AND (nama LIKE ? OR nip LIKE ? OR id_dosen LIKE ?)';
+    sql += ' AND (d.nama LIKE ? OR d.nip LIKE ? OR d.id_dosen LIKE ?)';
     const searchParam = `%${search}%`;
     params.push(searchParam, searchParam, searchParam);
   }
   
   if (is_active !== undefined) {
-    sql += ' AND is_active = ?';
+    sql += ' AND d.is_active = ?';
     params.push(is_active === 'true' ? 1 : 0);
   }
   
-  sql += ' ORDER BY nama ASC';
+  // Support filtering by angkatan (year from periode_kkn.angkatan field)
+  if (angkatan) {
+    sql += ' AND (p.angkatan = ? OR p.angkatan LIKE ?)';
+    params.push(angkatan, `${angkatan}%`); // Match "2024" or "2024/2025"
+  }
+  
+  // Legacy support for direct periode filter (if needed)
+  if (periode) {
+    sql += ' AND d.id_periode = ?';
+    params.push(periode);
+  }
+  
+  sql += ' ORDER BY d.nama ASC';
   
   pool.query(sql, params, (err, rows) => {
     if (err) {
@@ -4020,6 +4447,12 @@ app.post('/api/dosen/import', upload.single('file'), async (req, res) => {
     });
 
     console.log(`✅ Import complete: ${successCount}/${data.length} successful`);
+    
+    // 📊 AUTO-UPDATE all periode summaries after bulk import
+    if (successCount > 0) {
+      updateAllPeriodeSummary();
+      console.log('🔄 Updating all periode summaries after bulk dosen import...');
+    }
 
   } catch (err) {
     console.error('❌ Import dosen error:', err);
@@ -4044,7 +4477,7 @@ app.get('/api/dosen/:id', (req, res) => {
 
 // POST create new dosen
 app.post('/api/dosen', async (req, res) => {
-  const { nip, nama, prodi, email, no_telepon, is_active } = req.body;
+  const { nip, nama, prodi, email, no_telepon, id_periode, is_active } = req.body;
   
   if (!nip || !nama) {
     return res.status(400).json({ error: 'NIP dan Nama wajib diisi' });
@@ -4068,9 +4501,20 @@ app.post('/api/dosen', async (req, res) => {
     }
     
     await pool.promise().query(
-      'INSERT INTO data_dosen (id_dosen, nip, nama, prodi, email, no_telepon, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [newIdDosen, nip, nama, prodi || null, email || null, no_telepon || null, is_active !== undefined ? is_active : 1]
+      'INSERT INTO data_dosen (id_dosen, nip, nama, prodi, id_periode, email, no_telepon, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [newIdDosen, nip, nama, prodi || null, id_periode || null, email || null, no_telepon || null, is_active !== undefined ? is_active : 1]
     );
+    
+    // 📊 AUTO-UPDATE periode summary if dosen has periode
+    if (id_periode) {
+      updatePeriodeSummary(id_periode, (updateErr) => {
+        if (updateErr) {
+          console.warn(`⚠️  Failed to update periode summary for id_periode ${id_periode}:`, updateErr.message);
+        } else {
+          console.log(`✅ Periode summary updated for id_periode ${id_periode} after adding dosen`);
+        }
+      });
+    }
     
     res.status(201).json({ 
       success: true, 
@@ -4088,32 +4532,55 @@ app.post('/api/dosen', async (req, res) => {
 
 // PUT update dosen
 app.put('/api/dosen/:id', (req, res) => {
-  const { nip, nama, prodi, email, no_telepon, is_active } = req.body;
+  const { nip, nama, prodi, email, no_telepon, id_periode, is_active } = req.body;
   
   if (!nip || !nama) {
     return res.status(400).json({ error: 'NIP dan Nama wajib diisi' });
   }
   
-  pool.query(
-    'UPDATE data_dosen SET nip = ?, nama = ?, prodi = ?, email = ?, no_telepon = ?, is_active = ? WHERE id_dosen = ?',
-    [nip, nama, prodi || null, email || null, no_telepon || null, is_active !== undefined ? is_active : 1, req.params.id],
-    (err, result) => {
-      if (err) {
-        if (err.code === 'ER_DUP_ENTRY') {
-          return res.status(409).json({ error: 'NIP sudah digunakan oleh dosen lain' });
+  // 📊 First, get old id_periode before updating (to handle periode changes)
+  pool.query('SELECT id_periode FROM data_dosen WHERE id_dosen = ?', [req.params.id], (selectErr, selectRows) => {
+    const old_id_periode = selectRows && selectRows.length > 0 ? selectRows[0].id_periode : null;
+    
+    pool.query(
+      'UPDATE data_dosen SET nip = ?, nama = ?, prodi = ?, id_periode = ?, email = ?, no_telepon = ?, is_active = ? WHERE id_dosen = ?',
+      [nip, nama, prodi || null, id_periode || null, email || null, no_telepon || null, is_active !== undefined ? is_active : 1, req.params.id],
+      (err, result) => {
+        if (err) {
+          if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ error: 'NIP sudah digunakan oleh dosen lain' });
+          }
+          console.error('UPDATE dosen error:', err);
+          return res.status(500).json({ error: err.message });
         }
-        console.error('UPDATE dosen error:', err);
-        return res.status(500).json({ error: err.message });
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ error: 'Dosen tidak ditemukan' });
+        }
+        
+        // 📊 AUTO-UPDATE periode summary if periode changed
+        const periodesNeedUpdate = new Set();
+        if (old_id_periode) periodesNeedUpdate.add(old_id_periode);
+        if (id_periode) periodesNeedUpdate.add(id_periode);
+        
+        if (periodesNeedUpdate.size > 0) {
+          periodesNeedUpdate.forEach(periodeId => {
+            updatePeriodeSummary(periodeId, (updateErr) => {
+              if (updateErr) {
+                console.warn(`⚠️  Failed to update periode summary for id_periode ${periodeId}:`, updateErr.message);
+              } else {
+                console.log(`✅ Periode summary updated for id_periode ${periodeId} after dosen update`);
+              }
+            });
+          });
+        }
+        
+        res.json({ 
+          success: true, 
+          message: 'Dosen berhasil diupdate'
+        });
       }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'Dosen tidak ditemukan' });
-      }
-      res.json({ 
-        success: true, 
-        message: 'Dosen berhasil diupdate'
-      });
-    }
-  );
+    );
+  });
 });
 
 // DELETE dosen (soft delete: set is_active = 0)
@@ -4121,16 +4588,33 @@ app.delete('/api/dosen/:id', (req, res) => {
   const { permanent } = req.query;
   
   if (permanent === 'true') {
-    // Hard delete
-    pool.query('DELETE FROM data_dosen WHERE id_dosen = ?', [req.params.id], (err, result) => {
-      if (err) {
-        console.error('DELETE dosen error:', err);
-        return res.status(500).json({ error: err.message });
-      }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'Dosen tidak ditemukan' });
-      }
-      res.json({ success: true, message: 'Dosen berhasil dihapus permanen' });
+    // 📊 First, get id_periode before deleting (for summary update)
+    pool.query('SELECT id_periode FROM data_dosen WHERE id_dosen = ?', [req.params.id], (selectErr, selectRows) => {
+      const id_periode_to_update = selectRows && selectRows.length > 0 ? selectRows[0].id_periode : null;
+      
+      // Hard delete
+      pool.query('DELETE FROM data_dosen WHERE id_dosen = ?', [req.params.id], (err, result) => {
+        if (err) {
+          console.error('DELETE dosen error:', err);
+          return res.status(500).json({ error: err.message });
+        }
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ error: 'Dosen tidak ditemukan' });
+        }
+        
+        // 📊 AUTO-UPDATE periode summary after deletion
+        if (id_periode_to_update) {
+          updatePeriodeSummary(id_periode_to_update, (updateErr) => {
+            if (updateErr) {
+              console.warn(`⚠️  Failed to update periode summary for id_periode ${id_periode_to_update}:`, updateErr.message);
+            } else {
+              console.log(`✅ Periode summary updated after dosen deletion for id_periode ${id_periode_to_update}`);
+            }
+          });
+        }
+        
+        res.json({ success: true, message: 'Dosen berhasil dihapus permanen' });
+      });
     });
   } else {
     // Soft delete

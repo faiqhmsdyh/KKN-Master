@@ -1089,7 +1089,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
                 }`}
               >
                 <option value="">-- Pilih Periode (opsional) --</option>
-                {periodeList.map(p => (
+                {periodeList.slice(0, 3).map(p => (
                   <option key={p.id_periode} value={p.id_periode}>
                     {p.nama_periode} {p.is_active ? '✓' : ''}
                   </option>
@@ -1183,7 +1183,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
                 : "px-3 py-2 bg-white/80 border border-gray-300 text-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}
             >
               <option value="">Semua Periode</option>
-              {periodeList.map(periode => (
+              {periodeList.slice(0, 3).map(periode => (
                 <option key={periode.id_periode} value={periode.id_periode}>
                   {periode.nama_periode} {periode.is_active ? '✓' : ''}
                 </option>
@@ -1622,7 +1622,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
                     } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   >
                     <option value="">-- Pilih Periode (opsional) --</option>
-                    {periodeList.map(periode => (
+                    {periodeList.slice(0, 3).map(periode => (
                       <option key={periode.id_periode} value={periode.id_periode}>
                         {periode.nama_periode} ({periode.tahun_akademik || '-'})
                         {periode.is_active ? ' ✓ Aktif' : ''}

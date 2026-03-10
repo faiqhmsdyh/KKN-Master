@@ -94,7 +94,7 @@ export default function Step1_Upload({ onFileSelect, onFilesSelect, isDarkMode, 
                   Kolom Wajib:
                 </p>
                 <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
-                  NIM, Nama, Prodi, Fakultas, JK, Kesehatan, No.Telepon (opsional)
+                  NIM, Nama, Prodi, Fakultas, JK, Kesehatan, No.Telepon 
                 </p>
               </div>
               
@@ -166,10 +166,13 @@ export default function Step1_Upload({ onFileSelect, onFilesSelect, isDarkMode, 
               {/* Info */}
               <div className={isDarkMode ? "w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-xs" : "w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs"}>
                 <p className={isDarkMode ? "text-gray-300 font-semibold mb-1" : "text-gray-700 font-semibold mb-1"}>
-                  Kolom Wajib:
+                  <strong>Kolom Wajib:</strong>
                 </p>
                 <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
-                  NIM <span className="italic">(NIM tematik akan ditandai & tidak diikutkan autogroup)</span>
+                  NIM{" "}
+                  <span className="italic text-[12px]">
+                  (NIM tematik akan ditandai & tidak diikutkan autogroup)
+                  </span>
                 </p>
               </div>
               

@@ -58,7 +58,9 @@ export default function Riwayat({ riwayatViewMode, setRiwayatViewMode, selectedH
   useEffect(() => {
     if (riwayatViewMode === 'add-dpl' && selectedHasilId) {
       fetchDetailById(selectedHasilId);
-      fetchDosen();
+      // Extract year from selectedAngkatan (e.g., "2024" or "KKN 2024" -> "2024")
+      const periode = selectedAngkatan ? selectedAngkatan.match(/\d{4}/)?.[0] : null;
+      fetchDosen(periode);
     }
   }, [riwayatViewMode, selectedHasilId]);
   
@@ -87,10 +89,14 @@ export default function Riwayat({ riwayatViewMode, setRiwayatViewMode, selectedH
     }
   };
   
-  const fetchDosen = async () => {
+  const fetchDosen = async (periode = null) => {
     setLoadingDosen(true);
     try {
-      const response = await fetch('http://localhost:4000/api/dosen?is_active=true');
+      let url = 'http://localhost:4000/api/dosen?is_active=true';
+      if (periode) {
+        url += `&angkatan=${periode}`; // Use angkatan filter to match against periode_kkn.angkatan
+      }
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setDosenList(data);
@@ -186,7 +192,9 @@ export default function Riwayat({ riwayatViewMode, setRiwayatViewMode, selectedH
     setExpandedFullData([]);
     setDplChanges({}); // Reset changes
     fetchDetailById(item.id_hasil);
-    fetchDosen(); // Load dosen list for DPL dropdown
+    // Extract year from angkatan_kkn (e.g., "2024" or "KKN 2024" -> "2024")
+    const periode = item.angkatan_kkn ? item.angkatan_kkn.match(/\d{4}/)?.[0] : null;
+    fetchDosen(periode); // Load dosen list for DPL dropdown filtered by periode
   };
   
   const handleChangeDPL = (nomor_kelompok, id_dosen) => {

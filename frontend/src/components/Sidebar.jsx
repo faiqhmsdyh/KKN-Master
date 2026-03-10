@@ -43,7 +43,7 @@ export default function Sidebar({ tabs, activeTab, setActiveTab, isDarkMode, set
         {/* Logo Section */}
         <div className={`p-3 flex ${isSidebarCollapsed ? 'flex-col' : 'flex-row'} items-center justify-center gap-2`}>
           <div className="flex-shrink-0 hover-scale cursor-pointer">
-            <img src="/src/assets/logo/logo-uin.png" alt="Logo UIN" className={`${isSidebarCollapsed ? 'h-8' : 'h-10'} w-auto filter hover:drop-shadow-lg transition-all`} />
+            <img src="/src/assets/logo/logo-uin.png" alt="Logo UIN" className={`${isSidebarCollapsed ? 'h-11' : 'h-11'} w-auto filter hover:drop-shadow-lg transition-all`} />
           </div>
           {!isSidebarCollapsed && (
             <div className="flex-shrink-0 hover-scale cursor-pointer">
