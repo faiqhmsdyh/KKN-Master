@@ -123,6 +123,17 @@ section p, section span, section input, section select, section label {
   }
 }
 
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes pulse-glow {
   0%, 100% {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
@@ -155,6 +166,10 @@ section p, section span, section input, section select, section label {
 
 .animate-slideInUp {
   animation: slideInUp 0.5s ease-out;
+}
+
+.animate-slideInDown {
+  animation: slideInDown 0.4s ease-out;
 }
 
 .animate-pulse-glow {
@@ -463,4 +478,82 @@ section p, section span, section input, section select, section label {
     padding-right: 28px; 
     min-height: calc(100vh - 80px); 
   }
+}
+/* ==================== INTERACTIVITY FIXES ==================== */
+/* Ensure all main content is interactive */
+main {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+/* Ensure cards and interactive elements are always clickable */
+.modern-card,
+.glass-card {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+/* Ensure buttons are always clickable */
+button,
+a,
+select,
+input,
+textarea {
+  position: relative;
+  pointer-events: auto;
+}
+
+button,
+a {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input,
+select,
+textarea {
+  cursor: text;
+}
+
+/* Prevent any global overlays from blocking interaction */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Override any accidental pointer-events none */
+section > * {
+  pointer-events: auto;
+}
+
+/* Ensure all interactive elements in cards are clickable */
+.modern-card button,
+.modern-card a,
+.modern-card input,
+.modern-card select,
+.glass-card button,
+.glass-card a,
+.glass-card input,
+.glass-card select {
+  pointer-events: auto;
+}
+
+.modern-card button,
+.modern-card a,
+.glass-card button,
+.glass-card a {
+  cursor: pointer;
+}
+
+.modern-card input,
+.modern-card select,
+.modern-card textarea,
+.glass-card input,
+.glass-card select,
+.glass-card textarea {
+  cursor: text;
 }

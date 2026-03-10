@@ -5,24 +5,88 @@
    Dashboard-specific styles and overrides below.
 */
 
-/* Dashboard header */
-.dashboard-header {
-  margin-bottom: 2rem;
+/* Dashboard Modern Title */
+.dashboard-modern-title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
-.dashboard-title {
-  font-size: 2.5rem;
+/* Simple Clean Cards */
+.dashboard-simple-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.dashboard-simple-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dashboard-simple-card.dark {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(75, 85, 99, 0.5);
+}
+
+/* Prominent Blue Card for Students */
+.dashboard-prominent-card {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
+}
+
+.dashboard-prominent-card:hover {
+  box-shadow: 0 20px 50px rgba(59, 130, 246, 0.4);
+  transform: translateY(-4px);
+}
+
+/* Text Styles */
+.dashboard-stat-number {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.dashboard-stat-unit {
+  font-size: 1.25rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
 }
 
-.dashboard-subtitle {
-  font-size: 0.95rem;
-  color: #64748b;
-  margin-top: 0.5rem;
+/* Map Container */
+.dashboard-map-container {
+  border-radius: 1rem;
+  overflow: hidden;
+  background: rgba(249, 250, 251, 0.5);
+}
+
+/* Icon Container */
+.dashboard-icon-container {
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Override modern-card for simpler look */
+section .modern-card {
+  border-radius: 1.5rem;
+  padding: 2rem;
 }
 
 /* Stats grid */
@@ -245,4 +309,52 @@
   .dashboard-title {
     font-size: 1.875rem;
   }
+}
+/* Fix for map container to prevent overlay issues */
+.leaflet-container {
+  position: relative !important;
+  z-index: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure all interactive elements are clickable */
+section {
+  position: relative;
+  z-index: auto;
+}
+
+/* Make sure cards and buttons are clickable */
+.modern-card,
+.glass-card,
+button,
+a,
+input,
+select,
+textarea {
+  pointer-events: auto;
+}
+
+button,
+a {
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  cursor: text;
+}
+
+/* Prevent backdrop filters from blocking pointer events */
+.dashboard-stat-card,
+.modern-card,
+.glass-card {
+  touch-action: auto;
+  user-select: auto;
+}
+
+/* Ensure chart containers don't block interaction */
+.recharts-wrapper,
+.recharts-surface {
+  pointer-events: auto !important;
 }

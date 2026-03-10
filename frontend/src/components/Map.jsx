@@ -48,11 +48,11 @@ export default function Map({ locationData }) {
   return (
     <>
       {!hasValidLocations ? (
-        <div className={isDarkMode ? "bg-gray-700/50 p-8 rounded-xl text-center" : "bg-gray-50 p-8 rounded-xl text-center"}>
+        <div className={isDarkMode ? "bg-gray-700/50 p-6 rounded-lg text-center" : "bg-gray-50 p-6 rounded-lg text-center"}>
           <p className={isDarkMode ? "text-gray-300" : "text-gray-600"}>Belum ada lokasi dengan koordinat. Silakan tambah lokasi dan gunakan fitur "Cari Koordinat".</p>
         </div>
       ) : (
-        <div style={{ height: '400px' }}>
+        <div style={{ height: '500px' }}>
           <MapContainer center={center} zoom={9} style={{ height: '100%', width: '100%' }}>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -71,14 +71,18 @@ export default function Map({ locationData }) {
                 >
                   <Popup>
                     <div className="text-sm">
-                      <h3 className={isDarkMode ? "font-bold text-blue-400" : "font-bold text-blue-600"}>{location.lokasi}</h3>
-                      <p className={isDarkMode ? "text-gray-300" : "text-gray-700"}>{location.desa_kecamatan}</p>
-                      <p className={isDarkMode ? "text-gray-400 text-xs" : "text-gray-600 text-xs"}>{location.kabupaten}</p>
-                      <p className={isDarkMode ? "text-gray-400 text-xs mt-1" : "text-gray-500 text-xs mt-1"}>
-                        Kuota: {location.kuota}
+                      <h3 className={isDarkMode ? "font-bold text-blue-400 mb-1" : "font-bold text-blue-600 mb-1"}>{location.lokasi || 'Lokasi KKN'}</h3>
+                      <p className={isDarkMode ? "text-gray-300 text-xs" : "text-gray-700 text-xs"}>
+                        📍 {location.desa || '-'}
                       </p>
-                      <p className={isDarkMode ? "text-gray-500 text-xs" : "text-gray-400 text-xs"}>
-                        {lat.toFixed(4)}, {lng.toFixed(4)}
+                      <p className={isDarkMode ? "text-gray-300 text-xs" : "text-gray-700 text-xs"}>
+                        🗺️ Kec. {location.kecamatan || '-'}
+                      </p>
+                      <p className={isDarkMode ? "text-gray-400 text-xs" : "text-gray-600 text-xs"}>
+                        🏛️ {location.kabupaten || '-'}
+                      </p>
+                      <p className={isDarkMode ? "text-gray-500 text-xs mt-1" : "text-gray-400 text-xs mt-1"}>
+                        📌 {lat.toFixed(5)}, {lng.toFixed(5)}
                       </p>
                     </div>
                   </Popup>

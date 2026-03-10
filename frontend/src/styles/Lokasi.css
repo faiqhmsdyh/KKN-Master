@@ -121,3 +121,11 @@
 .lokasi-add-btn {
   margin-bottom: 1rem;
 }
+
+.btn-primary-dark {
+  @apply bg-gray-900 text-white px-4 py-2.5 rounded-lg font-semibold tracking-wide;
+  @apply hover:bg-gray-800 transition-all shadow-md;
+}
+.btn-primary-dark:disabled {
+  @apply bg-gray-500 cursor-not-allowed;
+}
