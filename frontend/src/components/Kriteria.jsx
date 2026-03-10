@@ -233,33 +233,32 @@ export default function Kriteria() {
   return (
     <section className="space-y-8 animate-fadeIn">
       {/* Header - Actions Only */}
-      <div className="flex justify-end items-center">
-        {/* Bulk Actions */}
-        <div className="flex items-center gap-3">
-          {criteriaList.length > 0 && (
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={selectedIds.length > 0 && selectedIds.length === getPaginatedData().length}
-                onChange={() => handleSelectAll(getPaginatedData())}
-                className="w-4 h-4 text-blue-600 rounded border-gray-400 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-              />
-              <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                PILIH SEMUA
-              </span>
-            </label>
-          )}
-          
-          {selectedIds.length > 0 && (
-            <button
-              onClick={handleBulkDelete}
-              className="flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
-            >
-              <TrashIcon size={16} />
-              HAPUS {selectedIds.length} DIPILIH
-            </button>
-          )}
-        </div>
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 justify-between items-stretch sm:items-center">
+        {/* Bulk Actions - Left Side */}
+        {criteriaList.length > 0 && (
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selectedIds.length > 0 && selectedIds.length === getPaginatedData().length}
+              onChange={() => handleSelectAll(getPaginatedData())}
+              className="w-4 h-4 text-blue-600 rounded border-gray-400 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+            />
+            <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              PILIH SEMUA
+            </span>
+          </label>
+        )}
+        
+        {/* Bulk Delete Button - Right Side */}
+        {selectedIds.length > 0 && (
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
+          >
+            <TrashIcon size={16} />
+            HAPUS {selectedIds.length} DIPILIH
+          </button>
+        )}
       </div>
 
       {/* Status Message */}

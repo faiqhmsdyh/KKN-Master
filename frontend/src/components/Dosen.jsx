@@ -15,6 +15,7 @@ export default function ManajemenDosen({ dosenViewMode, setDosenViewMode }) {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [selectedIds, setSelectedIds] = useState([]);
   
   // Form state for add/edit
   const [selectedDosen, setSelectedDosen] = useState(null);
@@ -293,6 +294,47 @@ export default function ManajemenDosen({ dosenViewMode, setDosenViewMode }) {
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
+  };
+
+  // Bulk selection handlers
+  const handleSelectAll = (data) => {
+    if (selectedIds.length === data.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(data.map(d => d.id_dosen));
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(sid => sid !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  // Bulk delete handler
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) {
+      alert('Pilih dosen yang ingin dihapus');
+      return;
+    }
+
+    if (!window.confirm(`Yakin ingin menghapus ${selectedIds.length} dosen yang dipilih? Data akan dihapus permanen dari database.`)) {
+      return;
+    }
+
+    try {
+      const deletePromises = selectedIds.map(id =>
+        fetch(`http://localhost:4000/api/dosen/${id}`, { method: 'DELETE' })
+      );
+      await Promise.all(deletePromises);
+      alert(`Berhasil menghapus ${selectedIds.length} dosen`);
+      setSelectedIds([]);
+      fetchDosen();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
   };
 
   return (
@@ -606,6 +648,14 @@ export default function ManajemenDosen({ dosenViewMode, setDosenViewMode }) {
               <table className="w-full">
                 <thead className={isDarkMode ? 'bg-gray-900 border-b border-gray-700' : 'bg-gray-50 border-b border-gray-200'}>
                   <tr>
+                    <th className={`px-4 py-3 text-center text-xs font-bold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'} w-12`}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.length > 0 && selectedIds.length === paginatedDosen.length}
+                        onChange={() => handleSelectAll(paginatedDosen)}
+                        className="w-4 h-4 text-blue-600 rounded border-gray-400 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      />
+                    </th>
                     <th className={`px-4 py-3 text-left text-xs font-bold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>NO</th>
                     <th className={`px-4 py-3 text-left text-xs font-bold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>NIP</th>
                     <th className={`px-4 py-3 text-left text-xs font-bold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>NAMA</th>
@@ -625,6 +675,14 @@ export default function ManajemenDosen({ dosenViewMode, setDosenViewMode }) {
                           : 'border-gray-100 hover:bg-gray-50'
                       } transition`}
                     >
+                      <td className="px-4 py-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(dosen.id_dosen)}
+                          onChange={() => handleSelectOne(dosen.id_dosen)}
+                          className="w-4 h-4 text-blue-600 rounded border-gray-400 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                        />
+                      </td>
                       <td className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {startIndex + idx + 1}
                       </td>
@@ -700,33 +758,46 @@ export default function ManajemenDosen({ dosenViewMode, setDosenViewMode }) {
 
           {/* Pagination Controls */}
           {filteredDosen.length > 0 && (
-            <div className={`flex flex-col md:flex-row items-center justify-between gap-4 p-4 ${isDarkMode ? 'bg-gray-800/40 border-t border-gray-700' : 'bg-gray-50/50 border-t border-gray-200'}`}>
+            <div className={`flex flex-col md:flex-row gap-3 md:gap-4 justify-between items-stretch md:items-center p-3 md:p-4 ${isDarkMode ? 'bg-gray-800/40 border-t border-gray-700' : 'bg-gray-50/50 border-t border-gray-200'}`}>
               {/* Items per page selector */}
-              <div className="flex items-center gap-3">
-                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Tampilkan:
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-medium whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    TAMPILKAN:
+                  </span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                    className={`px-3 py-2 rounded-lg border text-xs font-medium ${
+                      isDarkMode 
+                        ? 'bg-gray-900/50 border-gray-700 text-white' 
+                        : 'bg-white border-gray-300 text-gray-700'
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  >
+                    <option value={10}>10 BARIS</option>
+                    <option value={25}>25 BARIS</option>
+                    <option value={50}>50 BARIS</option>
+                    <option value={100}>100 BARIS</option>
+                  </select>
+                </div>
+                <span className="text-xs text-gray-500 text-center sm:text-left">
+                  Menampilkan {Math.min((currentPage - 1) * itemsPerPage + 1, filteredDosen.length)} - {Math.min(currentPage * itemsPerPage, filteredDosen.length)} dari {filteredDosen.length} dosen
                 </span>
-                <select
-                  value={itemsPerPage}
-                  onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-                  className={`px-3 py-1.5 rounded-lg border text-sm ${
-                    isDarkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white' 
-                      : 'bg-white border-gray-300 text-gray-800'
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                >
-                  <option value={10}>10</option>
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </select>
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  dari {filteredDosen.length} data
-                </span>
+                
+                {/* Bulk Delete Button */}
+                {selectedIds.length > 0 && (
+                  <button
+                    onClick={handleBulkDelete}
+                    className="flex items-center justify-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
+                  >
+                    <Trash2 size={14} />
+                    HAPUS {selectedIds.length} DIPILIH
+                  </button>
+                )}
               </div>
 
               {/* Page navigation */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center md:justify-end gap-2">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}

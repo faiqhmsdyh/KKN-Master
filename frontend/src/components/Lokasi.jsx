@@ -1255,7 +1255,8 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
         </div>
       ) : locationData && locationData.length > 0 ? (
         <div className={isDarkMode ? "overflow-hidden rounded-lg border border-gray-700/50" : "overflow-hidden rounded-lg border border-gray-200/80"}>
-          <table className={isDarkMode ? "w-full text-sm" : "w-full text-sm"}>
+          <div className="overflow-x-auto">
+            <table className={isDarkMode ? "w-full text-sm" : "w-full text-sm"}>
             <thead>
               <tr className={isDarkMode 
                 ? "bg-gray-700/60" 
@@ -1265,7 +1266,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
                     type="checkbox"
                     checked={selectedIds.length > 0 && selectedIds.length === getPaginatedData().length}
                     onChange={() => handleSelectAll(getPaginatedData())}
-                    className="w-2 h-2 text-blue-600 rounded border-gray-400 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    className="w-4 h-4 text-blue-600 rounded border-gray-400 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   />
                 </th>
                 <th className="px-4 py-1 text-center font-semibold text-gray-400 uppercase tracking-wider text-xs">No.</th>
@@ -1437,6 +1438,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
               )}
             </tbody>
           </table>
+          </div>
         </div>
       ) : (
         <div className="text-center py-12">
@@ -1448,26 +1450,28 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
       
       {/* Pagination Controls */}
       {locationData && locationData.length > 0 && (
-        <div className={`flex flex-wrap gap-4 justify-between items-center mt-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+        <div className={`flex flex-col md:flex-row gap-3 md:gap-4 justify-between items-stretch md:items-center mt-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
           {/* Items per page selector */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-medium">TAMPILKAN:</span>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              className={isDarkMode 
-                ? "px-3 py-2 bg-gray-900/50 border border-gray-700 text-white rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                : "px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"}
-            >
-              <option value="10">10 BARIS</option>
-              <option value="25">25 BARIS</option>
-              <option value="50">50 BARIS</option>
-              <option value="100">100 BARIS</option>
-            </select>
-            <span className="text-xs text-gray-500">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium whitespace-nowrap">TAMPILKAN:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className={isDarkMode 
+                  ? "px-3 py-2 bg-gray-900/50 border border-gray-700 text-white rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  : "px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"}
+              >
+                <option value="10">10 BARIS</option>
+                <option value="25">25 BARIS</option>
+                <option value="50">50 BARIS</option>
+                <option value="100">100 BARIS</option>
+              </select>
+            </div>
+            <span className="text-xs text-gray-500 text-center sm:text-left">
               Menampilkan {Math.min((currentPage - 1) * itemsPerPage + 1, getSortedData().length)} - {Math.min(currentPage * itemsPerPage, getSortedData().length)} dari {getSortedData().length} lokasi
             </span>
             
@@ -1475,7 +1479,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
             {selectedIds.length > 0 && (
               <button
                 onClick={handleBulkDelete}
-                className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
               >
                 <Trash2Icon size={14} />
                 HAPUS {selectedIds.length} DIPILIH
@@ -1484,7 +1488,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
           </div>
           
           {/* Page navigation */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center md:justify-end gap-2">
             {/* First page */}
             <button
               onClick={() => setCurrentPage(1)}
