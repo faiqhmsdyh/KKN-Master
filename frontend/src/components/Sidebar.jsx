@@ -37,8 +37,16 @@ export default function Sidebar({ tabs, activeTab, setActiveTab, isDarkMode, set
 
   return (
     <>
-      {/* VS Code Style Icon-Only Sidebar with Logo */}
-      <aside className={`fixed left-0 top-0 h-screen ${isSidebarCollapsed ? 'w-20' : 'w-60'} ${isDarkMode ? 'bg-gray-900/95' : 'bg-white/95'} backdrop-blur-xl transition-all duration-300 ease-out flex flex-col z-50`}>
+      {/* Mobile Overlay */}
+      {!isSidebarCollapsed && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
+          onClick={() => setIsSidebarCollapsed(true)}
+        />
+      )}
+      
+      {/* VS Code Style Sidebar */}
+      <aside className={`fixed left-0 top-0 h-screen ${isSidebarCollapsed ? 'w-20 -translate-x-full md:translate-x-0' : 'w-60 translate-x-0'} ${isDarkMode ? 'bg-gray-900/95' : 'bg-white/95'} backdrop-blur-xl transition-all duration-300 ease-out flex flex-col z-50`}>
         
         {/* Logo Section */}
         <div className={`p-3 flex ${isSidebarCollapsed ? 'flex-col' : 'flex-row'} items-center justify-center gap-2`}>
@@ -69,7 +77,13 @@ export default function Sidebar({ tabs, activeTab, setActiveTab, isDarkMode, set
               onMouseLeave={() => setHoveredTab(null)}
             >
               <button
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => {
+                  setActiveTab(tab.key);
+                  // Auto-close sidebar on mobile after selecting tab
+                  if (window.innerWidth < 768) {
+                    setIsSidebarCollapsed(true);
+                  }
+                }}
                 onMouseEnter={() => setHoveredTab(tab.key)}
                 onMouseLeave={() => setHoveredTab(null)}
                 aria-label={tab.label}

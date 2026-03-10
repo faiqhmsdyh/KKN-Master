@@ -43,7 +43,10 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [user, setUser] = useState(null);
   const [isResetPasswordPage, setIsResetPasswordPage] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    // Start collapsed on mobile, expanded on desktop
+    return typeof window !== 'undefined' && window.innerWidth < 768;
+  });
   const [activeTab, setActiveTab] = useState(() => {
     // Load activeTab from localStorage on mount
     return localStorage.getItem('activeTab') || 'dashboard';
@@ -87,6 +90,19 @@ export default function App() {
       localStorage.setItem('activeTab', activeTab);
     }
   }, [activeTab, user]);
+
+  // Handle window resize for responsive sidebar
+  useEffect(() => {
+    const handleResize = () => {
+      // Auto-collapse sidebar on mobile
+      if (window.innerWidth < 768) {
+        setIsSidebarCollapsed(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogout = () => {
     setUser(null);
@@ -227,7 +243,7 @@ export default function App() {
   return (
     <ThemeContext.Provider value={{ isDarkMode, setIsDarkMode }}>
       <div className={isDarkMode ? "min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" : "min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50"}>
-        <Header user={user} onLogout={handleLogout} breadcrumb={getBreadcrumb()} isSidebarCollapsed={isSidebarCollapsed} />
+        <Header user={user} onLogout={handleLogout} breadcrumb={getBreadcrumb()} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} />
 
         <div className="relative w-full">
           <Sidebar 
@@ -241,7 +257,7 @@ export default function App() {
             setIsSidebarCollapsed={setIsSidebarCollapsed}
           />
 
-          <main className={`${isSidebarCollapsed ? 'ml-20' : 'ml-60'} mt-16 flex-1 min-h-[calc(100vh-64px)] overflow-y-auto px-8 py-8 transition-all duration-300 ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/30'}`}>
+          <main className={`${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-60'} mt-14 md:mt-16 flex-1 min-h-[calc(100vh-56px)] md:min-h-[calc(100vh-64px)] overflow-y-auto px-3 py-4 md:px-6 lg:px-8 md:py-6 lg:py-8 transition-all duration-300 ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/30'}`}>
             {activeTab === 'dashboard' && <Dashboard user={user} setActiveTab={setActiveTab} />}
             {activeTab === 'koordinator_ppm' && <KoordinatorPPM user={user} setActiveTab={setActiveTab} />}
             {activeTab === 'lokasi' && <Lokasi setShowLocationModal={setShowLocationModal} locationData={locationData} setLocationData={setLocationData} setLocationForm={setLocationForm} setEditingId={setEditingId} lokasiViewMode={lokasiViewMode} setLokasiViewMode={setLokasiViewMode} locationForm={locationForm} editingId={editingId} />}

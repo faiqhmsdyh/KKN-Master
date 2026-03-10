@@ -1,8 +1,8 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
-import { Moon, Sun, User, Mail, Building2, MapPin, Lock, Camera, Eye, EyeOff, ChevronDown, IdCard, ChevronRight } from 'lucide-react';
+import { Moon, Sun, User, Mail, Building2, MapPin, Lock, Camera, Eye, EyeOff, ChevronDown, IdCard, ChevronRight, Menu, X } from 'lucide-react';
 import { ThemeContext } from '../App';
 
-export default function Header({ user, onLogout, breadcrumb = [], isSidebarCollapsed = false }) {
+export default function Header({ user, onLogout, breadcrumb = [], isSidebarCollapsed = false, setIsSidebarCollapsed }) {
   const { isDarkMode, setIsDarkMode } = useContext(ThemeContext);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showAdminDropdown, setShowAdminDropdown] = useState(false);
@@ -119,19 +119,32 @@ export default function Header({ user, onLogout, breadcrumb = [], isSidebarColla
 
   return (
     <>
-    <header className={`fixed top-0 ${isSidebarCollapsed ? 'left-20' : 'left-60'} right-0 z-40 transition-all duration-300 ${isDarkMode ? 'bg-gray-900/95' : 'bg-white/95'} backdrop-blur-xl`}>
-      <div className="max-w-full mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="flex items-center justify-between h-16">
-          {/* Breadcrumb & Title Section */}
-          <div className="flex items-center gap-4 flex-1">
-            <div className="flex flex-col gap-1">
+    <header className={`fixed top-0 ${isSidebarCollapsed ? 'md:left-20' : 'md:left-60'} left-0 right-0 z-40 transition-all duration-300 ${isDarkMode ? 'bg-gray-900/95' : 'bg-white/95'} backdrop-blur-xl border-b ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}`}>
+      <div className="max-w-full mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 md:h-16">
+          {/* Left: Hamburger Menu (Mobile) + Breadcrumb */}
+          <div className="flex items-center gap-2 md:gap-4 flex-1">
+            {/* Hamburger Menu - Mobile Only */}
+            <button
+              onClick={() => setIsSidebarCollapsed && setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className={`md:hidden p-2 rounded-lg transition-colors ${
+                isDarkMode 
+                  ? 'text-gray-300 hover:bg-gray-800 active:bg-gray-700' 
+                  : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
+              }`}
+              aria-label="Toggle Menu"
+            >
+              {isSidebarCollapsed ? <Menu size={22} /> : <X size={22} />}
+            </button>
+            
+            <div className="flex flex-col gap-0.5 md:gap-1">
               {/* Breadcrumb */}
-              <div className="flex items-center gap-3 text-lg">
-                <span className={`font-bold text-xl ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>KKN Master</span>
+              <div className="flex items-center gap-1.5 md:gap-3">
+                <span className={`font-bold text-sm md:text-lg lg:text-xl ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>KKN Master</span>
                 {breadcrumb.map((item, index) => (
                   <React.Fragment key={index}>
-                    <ChevronRight size={18} className={isDarkMode ? 'text-gray-600' : 'text-gray-400'} />
-                    <span className={`text-xl ${index === breadcrumb.length - 1 
+                    <ChevronRight size={14} className={`hidden sm:block ${isDarkMode ? 'text-gray-600' : 'text-gray-400'} md:w-4 md:h-4`} />
+                    <span className={`text-xs sm:text-sm md:text-base lg:text-lg truncate max-w-[120px] sm:max-w-none ${index === breadcrumb.length - 1 
                       ? (isDarkMode ? 'text-white font-bold' : 'text-gray-900 font-bold')
                       : (isDarkMode ? 'text-gray-400 font-semibold' : 'text-gray-600 font-semibold')
                     }`}>
@@ -144,18 +157,18 @@ export default function Header({ user, onLogout, breadcrumb = [], isSidebarColla
           </div>
 
           {/* Right Controls: Theme Toggle & Profile */}
-          <div className="flex justify-end items-center gap-3">{/* Theme toggle & profile dropdown */}
+          <div className="flex justify-end items-center gap-1.5 md:gap-3">{/* Theme toggle & profile dropdown */}
             {/* Theme Toggle */}
             <button
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`p-2.5 rounded-xl transition-all hover:scale-105 ${
+              className={`p-2 md:p-2.5 rounded-lg md:rounded-xl transition-all hover:scale-105 ${
                 isDarkMode
                   ? 'text-yellow-400 hover:text-yellow-300'
                   : 'text-amber-600 hover:text-amber-700'
               }`}
               title={isDarkMode ? 'Tampilan Terang' : 'Tampilan Gelap'}
             >
-              {isDarkMode ? <Sun size={20} strokeWidth={2.5} /> : <Moon size={20} strokeWidth={2.5} />}
+              {isDarkMode ? <Sun size={18} strokeWidth={2.5} className="md:w-5 md:h-5" /> : <Moon size={18} strokeWidth={2.5} className="md:w-5 md:h-5" />}
             </button>
             {/* Profile Dropdown - Only for Koordinator */}
             {user && user.role === 'Koordinator' && (

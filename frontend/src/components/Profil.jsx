@@ -117,23 +117,23 @@ export default function Profil({ user, onUpdateUser }) {
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-4 md:space-y-6 animate-fadeIn px-2 md:px-0">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+      <div className="text-center space-y-1 md:space-y-2">
+        <h1 className={`text-xl md:text-2xl lg:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
           Profil Pengguna
         </h1>
-        <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+        <p className={`text-sm md:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
           Kelola informasi akun Anda
         </p>
       </div>
 
       {/* Main Card */}
       <div className={isDarkMode 
-        ? "glass-card bg-gray-800/80 border-gray-700 p-8" 
-        : "glass-card bg-white/90 border-blue-100/80 p-8"}>
+        ? "glass-card bg-gray-800/80 border-gray-700 p-4 md:p-6 lg:p-8" 
+        : "glass-card bg-white/90 border-blue-100/80 p-4 md:p-6 lg:p-8"}>
         
-        <div className="flex flex-col md:flex-row items-start gap-8">
+        <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 lg:gap-8">
           {/* Profile Photo Section */}
           <div className="flex-shrink-0 mx-auto md:mx-0">
             <div className="relative group">
@@ -141,11 +141,11 @@ export default function Profil({ user, onUpdateUser }) {
                 <img 
                   src={user.foto} 
                   alt={user.nama}
-                  className="w-32 h-32 rounded-2xl object-cover shadow-xl"
+                  className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-2xl object-cover shadow-xl"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-xl">
-                  <User size={64} className="text-white" />
+                <div className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-xl">
+                  <User size={48} className="text-white md:w-14 md:h-14 lg:w-16 lg:h-16" />
                 </div>
               )}
               
@@ -173,64 +173,64 @@ export default function Profil({ user, onUpdateUser }) {
           </div>
 
           {/* User Info Section */}
-          <div className="flex-1 space-y-6 w-full">
-            <div>
-              <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+          <div className="flex-1 space-y-4 md:space-y-5 lg:space-y-6 w-full">
+            <div className="text-center md:text-left">
+              <h2 className={`text-xl md:text-2xl font-bold break-words ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                 {user?.nama || 'Pengguna'}
               </h2>
-              <p className="text-blue-500 font-semibold mt-1">
-                {user?.role === 'Admin' ? 'Staff PPM' : user?.role === 'Koordinator' ? 'Koordinator PPM' : user?.role}
+              <p className="text-blue-500 font-semibold mt-1 text-sm md:text-base">
+                {user?.role === 'Admin' ? 'Staff Pusat Pengabdian Masyarakat (LPPM)' : user?.role === 'Koordinator' ? 'Koordinator PPM' : user?.role}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 lg:gap-6">
               {/* NIP */}
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <IdCard size={20} className="text-blue-500" />
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className={`p-2 rounded-lg flex-shrink-0 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  <IdCard size={18} className="text-blue-500 md:w-5 md:h-5" />
                 </div>
-                <div>
-                  <p className={isDarkMode ? 'text-gray-500 text-xs' : 'text-gray-500 text-xs'}>NIP</p>
-                  <p className={isDarkMode ? 'text-gray-200 font-medium' : 'text-gray-800 font-medium'}>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>NIP</p>
+                  <p className={`font-medium text-sm md:text-base break-all ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                     {user?.nip || '-'}
                   </p>
                 </div>
               </div>
 
               {/* Email */}
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <Mail size={20} className="text-blue-500" />
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className={`p-2 rounded-lg flex-shrink-0 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  <Mail size={18} className="text-blue-500 md:w-5 md:h-5" />
                 </div>
-                <div>
-                  <p className={isDarkMode ? 'text-gray-500 text-xs' : 'text-gray-500 text-xs'}>Email</p>
-                  <p className={isDarkMode ? 'text-gray-200 font-medium' : 'text-gray-800 font-medium'}>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>Email</p>
+                  <p className={`font-medium text-sm md:text-base break-all ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                     {user?.email || user?.username || '-'}
                   </p>
                 </div>
               </div>
 
               {/* Username */}
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <User size={20} className="text-blue-500" />
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className={`p-2 rounded-lg flex-shrink-0 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  <User size={18} className="text-blue-500 md:w-5 md:h-5" />
                 </div>
-                <div>
-                  <p className={isDarkMode ? 'text-gray-500 text-xs' : 'text-gray-500 text-xs'}>Username</p>
-                  <p className={isDarkMode ? 'text-gray-200 font-medium' : 'text-gray-800 font-medium'}>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>Username</p>
+                  <p className={`font-medium text-sm md:text-base break-all ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                     {user?.username || '-'}
                   </p>
                 </div>
               </div>
 
               {/* Role */}
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <Building2 size={20} className="text-blue-500" />
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className={`p-2 rounded-lg flex-shrink-0 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  <Building2 size={18} className="text-blue-500 md:w-5 md:h-5" />
                 </div>
-                <div>
-                  <p className={isDarkMode ? 'text-gray-500 text-xs' : 'text-gray-500 text-xs'}>Role</p>
-                  <p className={isDarkMode ? 'text-gray-200 font-medium' : 'text-gray-800 font-medium'}>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>Role</p>
+                  <p className={`font-medium text-sm md:text-base break-words ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                     {user?.role || '-'}
                   </p>
                 </div>
@@ -238,19 +238,19 @@ export default function Profil({ user, onUpdateUser }) {
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="pt-4 md:pt-5 lg:pt-6 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => setShowPasswordModal(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl"
+                className="w-full md:w-auto flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm md:text-base font-semibold transition-all shadow-lg hover:shadow-xl"
               >
-                <Lock size={20} />
+                <Lock size={18} className="md:w-5 md:h-5" />
                 Ubah Password
               </button>
               
               {user?.role !== 'Admin' && (
-                <p className={`text-xs mt-3 flex items-center gap-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                  <AlertCircle size={14} />
-                  Data lain (Nama, NIP, Email, dll) hanya dapat diubah oleh Admin
+                <p className={`text-xs md:text-sm mt-2 md:mt-3 flex items-start md:items-center gap-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  <AlertCircle size={14} className="flex-shrink-0 mt-0.5 md:mt-0" />
+                  <span>Data lain (Nama, NIP, Email, dll) hanya dapat diubah oleh Admin</span>
                 </p>
               )}
             </div>
@@ -260,17 +260,17 @@ export default function Profil({ user, onUpdateUser }) {
 
       {/* Password Modal */}
       {showPasswordModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-lg flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-md rounded-2xl shadow-2xl ${
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-lg flex items-center justify-center z-50 p-3 md:p-4">
+          <div className={`w-full max-w-md rounded-xl md:rounded-2xl shadow-2xl max-h-[95vh] overflow-y-auto ${
             isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'
           }`}>
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                  <Lock size={24} className="text-blue-600 dark:text-blue-400" />
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="p-1.5 md:p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                  <Lock size={20} className="text-blue-600 dark:text-blue-400 md:w-6 md:h-6" />
                 </div>
-                <h3 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                <h3 className={`text-lg md:text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                   Ubah Password
                 </h3>
               </div>
@@ -288,7 +288,7 @@ export default function Profil({ user, onUpdateUser }) {
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handlePasswordChange} className="p-6 space-y-4">
+            <form onSubmit={handlePasswordChange} className="p-4 md:p-6 space-y-3 md:space-y-4">
               {/* Old Password */}
               <div>
                 <label className={`block text-sm font-semibold mb-2 ${
@@ -396,14 +396,14 @@ export default function Profil({ user, onUpdateUser }) {
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 md:pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowPasswordModal(false);
                     setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
                   }}
-                  className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all ${
+                  className={`flex-1 px-4 py-2.5 md:py-3 rounded-lg text-sm md:text-base font-semibold transition-all ${
                     isDarkMode 
                       ? 'bg-gray-700 hover:bg-gray-600 text-white' 
                       : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
@@ -413,7 +413,7 @@ export default function Profil({ user, onUpdateUser }) {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-lg"
+                  className="flex-1 px-4 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm md:text-base font-semibold transition-all shadow-lg"
                 >
                   Simpan
                 </button>
