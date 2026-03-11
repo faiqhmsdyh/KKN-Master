@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { ThemeContext } from '../App';
 import { Search, Filter, UserPlus, Edit2, Trash2, X, Eye, EyeOff } from 'lucide-react';
 import '../styles/ManajemenAkun.css';
+import API_BASE_URL from '../config/api';
 
 export default function ManajemenAkun() {
   const { isDarkMode } = useContext(ThemeContext);
@@ -24,7 +25,7 @@ export default function ManajemenAkun() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:4000/api/akun');
+      const res = await fetch(`${API_BASE_URL}/api/akun`);
       const data = await res.json();
       // Ensure data is an array
       setUsers(Array.isArray(data) ? data : []);
@@ -44,7 +45,7 @@ export default function ManajemenAkun() {
       return;
     }
     try {
-      const url = editingId ? `http://localhost:4000/api/akun/${editingId}` : 'http://localhost:4000/api/akun';
+      const url = editingId ? `${API_BASE_URL}/api/akun/${editingId}` : `${API_BASE_URL}/api/akun`;
       const method = editingId ? 'PUT' : 'POST';
       const payload = { 
         nama: form.nama,
@@ -94,7 +95,7 @@ export default function ManajemenAkun() {
   const remove = async (id) => { 
     if (!window.confirm('Yakin ingin menghapus akun ini?')) return; 
     try {
-      const res = await fetch(`http://localhost:4000/api/akun/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/api/akun/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Gagal menghapus akun');
       alert('Akun berhasil dihapus!');
       fetchUsers();
@@ -106,7 +107,7 @@ export default function ManajemenAkun() {
   const toggleStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'Aktif' ? 'Nonaktif' : 'Aktif';
     try {
-      const res = await fetch(`http://localhost:4000/api/akun/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/akun/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })

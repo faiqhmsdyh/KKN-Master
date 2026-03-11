@@ -285,7 +285,7 @@ export default function App() {
 
           if (editingId) {
             // UPDATE
-            const res = await fetch(`http://localhost:4000/api/locations/${editingId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/locations/${editingId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload),
@@ -299,7 +299,7 @@ export default function App() {
             alert('✅ Lokasi berhasil diupdate' + distanceMsg);
           } else {
             // CREATE
-            const res = await fetch('http://localhost:4000/api/locations', {
+            const res = await fetch(`${API_BASE_URL}/api/locations`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload),
@@ -318,7 +318,7 @@ export default function App() {
           setLocationForm({ lokasi: '', id_provinsi: '', id_kabupaten: '', id_kecamatan: '', id_desa: '', latitude: '', longitude: '', id_periode: '', kontak_person: '', kontak_nama: '', kontak_telepon: '' });
           setEditingId(null);
           // Refresh table with cache buster
-          const refreshRes = await fetch('http://localhost:4000/api/locations-with-distance?_=' + Date.now());
+          const refreshRes = await fetch(`${API_BASE_URL}/api/locations-with-distance?_=` + Date.now());
           if (refreshRes.ok) {
             const data = await refreshRes.json();
             setLocationData(data);

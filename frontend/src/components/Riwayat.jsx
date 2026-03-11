@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { ClockIcon, DownloadIcon, Trash2Icon, LoaderIcon, SearchIcon, CalendarIcon, UserPlus, ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Users, X, Edit2, Save, Check, ArrowLeft } from 'lucide-react';
 import { ThemeContext } from '../App';
 import '../styles/Riwayat.css';
+import API_BASE_URL from '../config/api';
 
 // Import XLSX library for Excel parsing
 let XLSX;
@@ -77,7 +78,7 @@ export default function Riwayat({ riwayatViewMode, setRiwayatViewMode, selectedH
   const fetchHistory = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/autogroup/hasil');
+      const response = await fetch(`${API_BASE_URL}/autogroup/hasil`);
       if (response.ok) {
         const data = await response.json();
         setHistoryData(data);
@@ -92,7 +93,7 @@ export default function Riwayat({ riwayatViewMode, setRiwayatViewMode, selectedH
   const fetchDosen = async (periode = null) => {
     setLoadingDosen(true);
     try {
-      let url = 'http://localhost:4000/api/dosen?is_active=true';
+      let url = `${API_BASE_URL}/api/dosen?is_active=true`;
       if (periode) {
         url += `&angkatan=${periode}`; // Use angkatan filter to match against periode_kkn.angkatan
       }
@@ -112,7 +113,7 @@ export default function Riwayat({ riwayatViewMode, setRiwayatViewMode, selectedH
     setLoadingDetail(true);
     try {
       console.log('📥 Fetching detail for id:', id);
-      const response = await fetch(`http://localhost:4000/autogroup/hasil/${id}/detail`);
+      const response = await fetch(`${API_BASE_URL}/autogroup/hasil/${id}/detail`);
       
       console.log('📡 Response status:', response.status);
       
@@ -231,7 +232,7 @@ export default function Riwayat({ riwayatViewMode, setRiwayatViewMode, selectedH
       // Save all changes in parallel
       const savePromises = Object.entries(dplChanges).map(([nomor_kelompok, id_dosen]) =>
         fetch(
-          `http://localhost:4000/autogroup/hasil/${idHasil}/group/${nomor_kelompok}/dpl`,
+          `${API_BASE_URL}/autogroup/hasil/${idHasil}/group/${nomor_kelompok}/dpl`,
           {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -269,7 +270,7 @@ export default function Riwayat({ riwayatViewMode, setRiwayatViewMode, selectedH
     if (!window.confirm('Yakin ingin menghapus hasil ini?')) return;
 
     try {
-      const response = await fetch(`http://localhost:4000/autogroup/hasil/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/autogroup/hasil/${id}`, {
         method: 'DELETE'
       });
       if (response.ok) {
@@ -313,7 +314,7 @@ export default function Riwayat({ riwayatViewMode, setRiwayatViewMode, selectedH
     setIsLoading(true);
     try {
       const deletePromises = selectedIds.map(id =>
-        fetch(`http://localhost:4000/autogroup/hasil/${id}`, { method: 'DELETE' })
+        fetch(`${API_BASE_URL}/autogroup/hasil/${id}`, { method: 'DELETE' })
       );
       await Promise.all(deletePromises);
       alert(`Berhasil menghapus ${selectedIds.length} hasil`);
@@ -329,7 +330,7 @@ export default function Riwayat({ riwayatViewMode, setRiwayatViewMode, selectedH
   const handleExport = async (id) => {
     try {
       // Panggil endpoint export Excel terstruktur
-      const response = await fetch(`http://localhost:4000/autogroup/hasil/${id}/export-excel`);
+      const response = await fetch(`${API_BASE_URL}/autogroup/hasil/${id}/export-excel`);
       
       if (!response.ok) {
         throw new Error('Gagal export ke Excel');

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { PlusIcon, EditIcon, TrashIcon, SaveIcon, XIcon, CheckCircleIcon, AlertCircleIcon, LoaderIcon, SlidersHorizontalIcon, ChevronsDownUp, GitCommitHorizontal, ToggleRight, UsersIcon, InfoIcon, ChevronDownIcon, ChevronUpIcon, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { ThemeContext } from '../App';
 import '../styles/Kriteria.css';
+import API_BASE_URL from '../config/api';
 
 const KriteriaCard = ({ kriteria, onEdit, onDelete, isDarkMode, isSelected, onSelect }) => {
   const typeMap = {
@@ -96,7 +97,7 @@ export default function Kriteria() {
   const fetchCriteria = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/kriteria');
+      const response = await fetch(`${API_BASE_URL}/kriteria`);
       if (!response.ok) throw new Error('Failed to fetch criteria');
       const data = await response.json();
       setCriteriaList(data);
@@ -135,8 +136,8 @@ export default function Kriteria() {
     }
     setIsLoading(true);
     const url = editingId
-      ? `http://localhost:4000/kriteria/${editingId}`
-      : 'http://localhost:4000/kriteria';
+      ? `${API_BASE_URL}/kriteria/${editingId}`
+      : `${API_BASE_URL}/kriteria`;
     const method = editingId ? 'PUT' : 'POST';
 
     try {
@@ -162,7 +163,7 @@ export default function Kriteria() {
     if (window.confirm('Apakah Anda yakin ingin menghapus kriteria ini?')) {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://localhost:4000/kriteria/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/kriteria/${id}`, {
           method: 'DELETE',
         });
         if (!response.ok) throw new Error('Gagal menghapus data');
@@ -203,7 +204,7 @@ export default function Kriteria() {
     setIsLoading(true);
     try {
       const deletePromises = selectedIds.map(id =>
-        fetch(`http://localhost:4000/kriteria/${id}`, { method: 'DELETE' })
+        fetch(`${API_BASE_URL}/kriteria/${id}`, { method: 'DELETE' })
       );
       await Promise.all(deletePromises);
       showStatusMessage('success', `Berhasil menghapus ${selectedIds.length} kriteria`);

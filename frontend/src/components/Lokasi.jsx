@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { MapIcon, Trash2Icon, Edit2Icon, LoaderIcon, SearchIcon, UploadIcon, ArrowUpDownIcon, FilterIcon, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MapPin, Info, X, Calendar, Settings, Calculator, ArrowLeft, FileSpreadsheet, Upload } from 'lucide-react';
 import { ThemeContext } from '../App';
 import PeriodeModal from './PeriodeModal';
 import LocationModal from './LocationModal';
 import '../styles/Lokasi.css';
+import API_BASE_URL from '../config/api';
 
 export default function Lokasi({ setShowLocationModal, locationData, setLocationData, setLocationForm, setEditingId, lokasiViewMode, setLokasiViewMode, locationForm, editingId }) {
   const { isDarkMode } = useContext(ThemeContext);
@@ -85,7 +86,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
   useEffect(() => {
     const fetchPeriode = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/periode');
+        const response = await fetch(`${API_BASE_URL}/api/periode`);
         if (response.ok) {
           const data = await response.json();
           setPeriodeList(data);
@@ -125,7 +126,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
   useEffect(() => {
     const fetchProvinsi = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/wilayah/provinsi');
+        const response = await fetch(`${API_BASE_URL}/api/wilayah/provinsi`);
         if (response.ok) {
           const data = await response.json();
           setProvinsiList(data);
@@ -145,7 +146,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
         return;
       }
       try {
-        const response = await fetch(`http://localhost:4000/api/wilayah/kabupaten/${provinsiFilter}`);
+        const response = await fetch(`${API_BASE_URL}/api/wilayah/kabupaten/${provinsiFilter}`);
         if (response.ok) {
           const data = await response.json();
           setKabupatenList(data);
@@ -167,7 +168,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
   const fetchLocations = async () => {
     setIsLoading(true);
     try {
-      let url = 'http://localhost:4000/api/locations-with-distance';
+      let url = `${API_BASE_URL}/api/locations-with-distance`;
       const params = [];
       if (periodeFilter) {
         params.push(`id_periode=${periodeFilter}`);
@@ -224,7 +225,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
     setIsLoading(true);
     try {
       const deletePromises = selectedIds.map(id =>
-        fetch(`http://localhost:4000/lokasi/${id}`, { method: 'DELETE' })
+        fetch(`${API_BASE_URL}/lokasi/${id}`, { method: 'DELETE' })
       );
       
       await Promise.all(deletePromises);
@@ -364,7 +365,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
     if (!window.confirm('Yakin ingin menghapus lokasi ini?')) return;
 
     try {
-      const response = await fetch(`http://localhost:4000/lokasi/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/lokasi/${id}`, {
         method: 'DELETE'
       });
       if (response.ok) {
@@ -413,7 +414,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
         formData.append('id_periode', importPeriode);
       }
       
-      const response = await fetch('http://localhost:4000/lokasi/import', {
+      const response = await fetch(`${API_BASE_URL}/lokasi/import`, {
         method: 'POST',
         body: formData
       });
@@ -463,7 +464,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
     const selectedPeriode = periodeList.find(p => String(p.id_periode) === String(periodeFilter));
     
     try {
-      const res = await fetch('http://localhost:4000/lokasi/import', { 
+      const res = await fetch(`${API_BASE_URL}/lokasi/import`, { 
         method: 'POST', 
         body: fd 
       });
@@ -498,7 +499,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
     setIsCalculatingDistances(true);
     
     try {
-      const res = await fetch('http://localhost:4000/api/recalculate-distances', {
+      const res = await fetch(`${API_BASE_URL}/api/recalculate-distances`, {
         method: 'POST'
       });
       
@@ -586,7 +587,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
   // Fetch provinsi for form
   useEffect(() => {
     if (lokasiViewMode === 'add' || lokasiViewMode === 'edit') {
-      fetch('http://localhost:4000/api/wilayah/provinsi')
+      fetch(`${API_BASE_URL}/api/wilayah/provinsi`)
         .then(res => res.json())
         .then(data => setFormProvinsiList(data))
         .catch(err => console.error('Error loading provinsi:', err));
@@ -596,7 +597,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
   // Fetch kabupaten when provinsi changes
   useEffect(() => {
     if (formData.id_provinsi && (lokasiViewMode === 'add' || lokasiViewMode === 'edit')) {
-      fetch(`http://localhost:4000/api/wilayah/kabupaten/${formData.id_provinsi}`)
+      fetch(`${API_BASE_URL}/api/wilayah/kabupaten/${formData.id_provinsi}`)
         .then(res => res.json())
         .then(data => setFormKabupatenList(data))
         .catch(err => console.error('Error loading kabupaten:', err));
@@ -608,7 +609,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
   // Fetch kecamatan when kabupaten changes
   useEffect(() => {
     if (formData.id_kabupaten && (lokasiViewMode === 'add' || lokasiViewMode === 'edit')) {
-      fetch(`http://localhost:4000/api/wilayah/kecamatan/${formData.id_kabupaten}`)
+      fetch(`${API_BASE_URL}/api/wilayah/kecamatan/${formData.id_kabupaten}`)
         .then(res => res.json())
         .then(data => setFormKecamatanList(data))
         .catch(err => console.error('Error loading kecamatan:', err));
@@ -620,7 +621,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
   // Fetch desa when kecamatan changes
   useEffect(() => {
     if (formData.id_kecamatan && (lokasiViewMode === 'add' || lokasiViewMode === 'edit')) {
-      fetch(`http://localhost:4000/api/wilayah/desa/${formData.id_kecamatan}`)
+      fetch(`${API_BASE_URL}/api/wilayah/desa/${formData.id_kecamatan}`)
         .then(res => res.json())
         .then(data => setFormDesaList(data))
         .catch(err => console.error('Error loading desa:', err));
@@ -644,7 +645,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
       try {
         console.log('🔍 Auto-geocoding:', selectedDesa.nama, selectedKecamatan.nama);
         
-        const response = await fetch('http://localhost:4000/api/geocode', {
+        const response = await fetch(`${API_BASE_URL}/api/geocode`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -691,7 +692,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
     setFaskesResult(null);
     
     try {
-      const response = await fetch(`http://localhost:4000/api/locations/${editingId}/calculate-distance`, {
+      const response = await fetch(`${API_BASE_URL}/api/locations/${editingId}/calculate-distance`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -744,8 +745,8 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
       };
 
       const url = editingId 
-        ? `http://localhost:4000/api/locations/${editingId}`
-        : 'http://localhost:4000/api/locations';
+        ? `${API_BASE_URL}/api/locations/${editingId}`
+        : `${API_BASE_URL}/api/locations`;
       
       const method = editingId ? 'PUT' : 'POST';
 
@@ -1589,7 +1590,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
         onClose={() => setShowPeriodeModal(false)}
         onPeriodeChange={() => {
           // Refresh periode list
-          fetch('http://localhost:4000/api/periode')
+          fetch(`${API_BASE_URL}/api/periode`)
             .then(res => res.json())
             .then(data => setPeriodeList(data))
             .catch(err => console.error('Error refreshing periode:', err));

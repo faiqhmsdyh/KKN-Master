@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import { ArrowLeft, FileDown, Users, Check, Loader2, AlertTriangle, ChevronDown, ChevronUp, RefreshCw, ChevronsDown, ChevronsUp } from 'lucide-react';
+import API_BASE_URL from '../config/api';
 
 export default function Step3_Results({ groupingResult, onBack, onRestart, isDarkMode }) {
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -35,7 +36,7 @@ export default function Step3_Results({ groupingResult, onBack, onRestart, isDar
     setSaveError(null);
     
     try {
-      const saveResponse = await fetch('http://localhost:4000/autogroup/save', {
+      const saveResponse = await fetch(`${API_BASE_URL}/autogroup/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ groups, rules, konfigurasi, statistics }),
@@ -78,7 +79,7 @@ export default function Step3_Results({ groupingResult, onBack, onRestart, isDar
       let idHasil = savedIdHasil;
       
       if (!idHasil) {
-        const saveResponse = await fetch('http://localhost:4000/autogroup/save', {
+        const saveResponse = await fetch(`${API_BASE_URL}/autogroup/save`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ groups, rules, konfigurasi, statistics }),
@@ -96,7 +97,7 @@ export default function Step3_Results({ groupingResult, onBack, onRestart, isDar
       }
       
       // Download structured Excel from backend
-      const excelResponse = await fetch(`http://localhost:4000/autogroup/hasil/${idHasil}/export-excel`);
+      const excelResponse = await fetch(`${API_BASE_URL}/autogroup/hasil/${idHasil}/export-excel`);
       
       if (!excelResponse.ok) {
         throw new Error('Gagal mengunduh file Excel');

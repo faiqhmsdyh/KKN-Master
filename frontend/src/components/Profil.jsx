@@ -1,5 +1,6 @@
-import React, { useState, useContext } from 'react';
+﻿import React, { useState, useContext } from 'react';
 import { ThemeContext } from '../App';
+import API_BASE_URL from '../config/api';
 import { 
   User, 
   Mail, 
@@ -51,7 +52,7 @@ export default function Profil({ user, onUpdateUser }) {
     const reader = new FileReader();
     reader.onloadend = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/akun/${user.id_akun}/foto`, {
+        const res = await fetch(`${API_BASE_URL}/api/akun/${user.id_akun}/foto`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ foto: reader.result })
@@ -92,7 +93,7 @@ export default function Profil({ user, onUpdateUser }) {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/api/akun/${user.id_akun}/password`, {
+      const res = await fetch(`${API_BASE_URL}/api/akun/${user.id_akun}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

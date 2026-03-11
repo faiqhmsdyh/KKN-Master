@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, FileCheck2, Calendar, ArrowRight, LoaderIcon, Save, Check, UserCheck, UserX, HeartPulse } from 'lucide-react';
+import API_BASE_URL from '../config/api';
 
 export default function Step2_Parameters({
   mahasiswaData,
@@ -27,12 +28,12 @@ export default function Step2_Parameters({
       setFetchError(null);
       try {
         // Fetch available criteria with active configurations
-        const criteriaRes = await fetch('http://localhost:4000/kriteria');
+        const criteriaRes = await fetch(`${API_BASE_URL}/kriteria`);
         if (!criteriaRes.ok) throw new Error('Gagal memuat kriteria');
         const criteriaData = await criteriaRes.json();
         
         // Also fetch active konfigurasi
-        const konfRes = await fetch('http://localhost:4000/konfigurasi-kriteria/active');
+        const konfRes = await fetch(`${API_BASE_URL}/konfigurasi-kriteria/active`);
         if (!konfRes.ok) throw new Error('Gagal memuat konfigurasi kriteria');
         const konfData = await konfRes.json();
         
@@ -65,7 +66,7 @@ export default function Step2_Parameters({
         setCriteria(initialCriteria);
 
         // Fetch student statistics
-        const statsRes = await fetch('http://localhost:4000/mahasiswa/statistik');
+        const statsRes = await fetch(`${API_BASE_URL}/mahasiswa/statistik`);
         if (!statsRes.ok) throw new Error('Gagal memuat statistik mahasiswa');
         const statsData = await statsRes.json();
         setStats(statsData);

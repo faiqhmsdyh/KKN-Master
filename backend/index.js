@@ -5154,6 +5154,7 @@ app.delete('/api/grouping-history/:id', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`✓ Backend API listening on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✓ Backend API listening on http://0.0.0.0:${PORT}`);
+  console.log(`✓ Access from other devices: http://<YOUR_IP>:${PORT}`);
 });

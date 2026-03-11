@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { MapIcon, UsersIcon, ListChecksIcon, ArrowRight, Sparkles } from 'lucide-react';
 import Map from './Map';
 import { ThemeContext } from '../App';
 import '../styles/Dashboard.css';
+import API_BASE_URL from '../config/api';
 
 export default function Dashboard({ user, setActiveTab }) {
   const { isDarkMode } = useContext(ThemeContext);
@@ -23,7 +24,7 @@ export default function Dashboard({ user, setActiveTab }) {
   const fetchDesaCount = async () => {
     try {
       // Fetch active periode first
-      const periodeRes = await fetch('http://localhost:4000/api/periode/active');
+      const periodeRes = await fetch(`${API_BASE_URL}/api/periode/active`);
       let periodeId = null;
       if (periodeRes.ok) {
         const activePeriode = await periodeRes.json();
@@ -31,7 +32,7 @@ export default function Dashboard({ user, setActiveTab }) {
       }
       
       // Fetch locations with active periode filter
-      let url = 'http://localhost:4000/api/locations-with-distance';
+      let url = `${API_BASE_URL}/api/locations-with-distance`;
       if (periodeId) {
         url += `?id_periode=${periodeId}`;
       }
@@ -49,7 +50,7 @@ export default function Dashboard({ user, setActiveTab }) {
   const fetchLocationData = async () => {
     try {
       // Fetch active periode first
-      const periodeRes = await fetch('http://localhost:4000/api/periode/active');
+      const periodeRes = await fetch(`${API_BASE_URL}/api/periode/active`);
       let periodeId = null;
       if (periodeRes.ok) {
         const activePeriode = await periodeRes.json();
@@ -57,7 +58,7 @@ export default function Dashboard({ user, setActiveTab }) {
       }
       
       // Fetch locations with active periode filter
-      let url = 'http://localhost:4000/api/locations-with-distance';
+      let url = `${API_BASE_URL}/api/locations-with-distance`;
       if (periodeId) {
         url += `?id_periode=${periodeId}`;
       }
@@ -74,7 +75,7 @@ export default function Dashboard({ user, setActiveTab }) {
 
   const fetchMahasiswaStats = async () => {
     try {
-      const response = await fetch('http://localhost:4000/mahasiswa/statistik');
+      const response = await fetch(`${API_BASE_URL}/mahasiswa/statistik`);
       if (response.ok) {
         const data = await response.json();
         setMahasiswaStats(data);
@@ -86,7 +87,7 @@ export default function Dashboard({ user, setActiveTab }) {
 
   const fetchKriteriaCount = async () => {
     try {
-      const response = await fetch('http://localhost:4000/kriteria');
+      const response = await fetch(`${API_BASE_URL}/kriteria`);
       if (response.ok) {
         const data = await response.json();
         setKriteriaCount(data.length);

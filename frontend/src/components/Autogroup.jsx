@@ -1,8 +1,9 @@
-import React, { useState, useContext } from 'react';
+﻿import React, { useState, useContext } from 'react';
 import * as XLSX from 'xlsx';
 import { ThemeContext } from '../App';
 import '../styles/Autogroup.css';
 import { AlertCircle } from 'lucide-react';
+import API_BASE_URL from '../config/api';
 
 import Step1_Upload from './Step1_Upload';
 import Step2_Parameters from './Step2_Parameters';
@@ -58,9 +59,9 @@ export default function Autogroup() {
         const json = XLSX.utils.sheet_to_json(worksheet);
         
         // Clear previous data and upload new
-        await fetch('http://localhost:4000/mahasiswa', { method: 'DELETE' });
+        await fetch(`${API_BASE_URL}/mahasiswa`, { method: 'DELETE' });
         
-        const response = await fetch('http://localhost:4000/mahasiswa/import-json', {
+        const response = await fetch(`${API_BASE_URL}/mahasiswa/import-json`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ data: json }),
@@ -134,7 +135,7 @@ export default function Autogroup() {
       }
       
       // Send to new endpoint with tematik matching
-      const response = await fetch('http://localhost:4000/mahasiswa/import-with-tematik', {
+      const response = await fetch(`${API_BASE_URL}/mahasiswa/import-with-tematik`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -176,7 +177,7 @@ export default function Autogroup() {
   const handleSaveConfiguration = async (payload) => {
     try {
       // Save general configuration (tahun ajaran & angkatan will be saved in konfigurasi_kriteria)
-      const response = await fetch('http://localhost:4000/konfigurasi-autogrup', {
+      const response = await fetch(`${API_BASE_URL}/konfigurasi-autogrup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -245,7 +246,7 @@ export default function Autogroup() {
             return konfig;
           });
           
-          const konfRes = await fetch('http://localhost:4000/konfigurasi-kriteria/batch', {
+          const konfRes = await fetch(`${API_BASE_URL}/konfigurasi-kriteria/batch`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
@@ -260,7 +261,7 @@ export default function Autogroup() {
         } else {
           console.log('No kriteria to save (all empty)');
           // Deactivate all existing kriteria if nothing is filled
-          await fetch('http://localhost:4000/konfigurasi-kriteria/deactivate-all', {
+          await fetch(`${API_BASE_URL}/konfigurasi-kriteria/deactivate-all`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
           });
@@ -277,7 +278,7 @@ export default function Autogroup() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:4000/autogroup/generate', {
+      const response = await fetch(`${API_BASE_URL}/autogroup/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

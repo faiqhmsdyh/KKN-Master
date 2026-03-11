@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Moon, Sun, Eye, EyeOff, X, Mail, IdCard, Loader, Lock, ArrowRight } from 'lucide-react';
 import uinLogo from '../assets/logo/logo-uin.png';
 import lppmLogo from '../assets/logo/logo-lppm.png';
+import API_BASE_URL from '../config/api';
 
 export default function Login({ onLogin, isDarkMode, setIsDarkMode }) {
   const [username, setUsername] = useState('');
@@ -24,7 +25,7 @@ export default function Login({ onLogin, isDarkMode, setIsDarkMode }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('http://localhost:4000/api/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -62,7 +63,7 @@ export default function Login({ onLogin, isDarkMode, setIsDarkMode }) {
     setForgotSuccess(false);
     
     try {
-      const res = await fetch('http://localhost:4000/api/auth/forgot-password', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nip: forgotNip, email: forgotEmail })

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { X, Plus, Edit2, Trash2, CheckCircle, Copy, Calendar, Users } from 'lucide-react';
 import { ThemeContext } from '../App';
+import API_BASE_URL from '../config/api';
 
 export default function PeriodeModal({ show, onClose, onPeriodeChange }) {
   const { isDarkMode } = useContext(ThemeContext);
@@ -26,7 +27,7 @@ export default function PeriodeModal({ show, onClose, onPeriodeChange }) {
   const fetchPeriode = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/api/periode');
+      const response = await fetch(`${API_BASE_URL}/api/periode`);
       if (response.ok) {
         const data = await response.json();
         setPeriodeList(data);
@@ -60,8 +61,8 @@ export default function PeriodeModal({ show, onClose, onPeriodeChange }) {
 
     try {
       const url = editingPeriode 
-        ? `http://localhost:4000/api/periode/${editingPeriode.id_periode}`
-        : 'http://localhost:4000/api/periode';
+        ? `${API_BASE_URL}/api/periode/${editingPeriode.id_periode}`
+        : `${API_BASE_URL}/api/periode`;
       
       const response = await fetch(url, {
         method: editingPeriode ? 'PUT' : 'POST',
@@ -99,7 +100,7 @@ export default function PeriodeModal({ show, onClose, onPeriodeChange }) {
     if (!window.confirm('Yakin ingin menghapus periode ini?')) return;
     
     try {
-      const response = await fetch(`http://localhost:4000/api/periode/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/periode/${id}`, {
         method: 'DELETE'
       });
       
@@ -117,7 +118,7 @@ export default function PeriodeModal({ show, onClose, onPeriodeChange }) {
 
   const handleActivate = async (id) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/periode/${id}/activate`, {
+      const response = await fetch(`${API_BASE_URL}/api/periode/${id}/activate`, {
         method: 'POST'
       });
       
@@ -138,7 +139,7 @@ export default function PeriodeModal({ show, onClose, onPeriodeChange }) {
     if (!newName) return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/periode/${periode.id_periode}/duplicate`, {
+      const response = await fetch(`${API_BASE_URL}/api/periode/${periode.id_periode}/duplicate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

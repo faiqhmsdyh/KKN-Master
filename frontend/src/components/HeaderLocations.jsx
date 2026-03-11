@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { MapPin, ChevronDown, ChevronUp, Loader, Map as MapIcon } from 'lucide-react';
 import { ThemeContext } from '../App';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import API_BASE_URL from '../config/api';
 
 // Fix default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -28,7 +29,7 @@ export default function HeaderLocations() {
   const fetchLocations = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/api/locations');
+      const response = await fetch(`${API_BASE_URL}/api/locations`);
       
       if (!response.ok) {
         throw new Error('Gagal mengambil data lokasi');

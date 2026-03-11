@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LoaderIcon, ChevronDown, X } from 'lucide-react';
 import '../styles/LocationModal.css';
+import API_BASE_URL from '../config/api';
 
 // Combo-box style Select: single input for both display and search
 function SearchableSelect({ 
@@ -202,7 +203,7 @@ export default function LocationModal({ show, setShow, locationForm, setLocation
 
   const fetchPeriodeList = async () => {
     try {
-      const res = await fetch('http://localhost:4000/api/periode');
+      const res = await fetch(`${API_BASE_URL}/api/periode`);
       if (res.ok) {
         const data = await res.json();
         setPeriodeList(data);
@@ -250,7 +251,7 @@ export default function LocationModal({ show, setShow, locationForm, setLocation
 
       setIsGeocoding(true);
       try {
-        const response = await fetch('http://localhost:4000/api/geocode', {
+        const response = await fetch(`${API_BASE_URL}/api/geocode`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -284,7 +285,7 @@ export default function LocationModal({ show, setShow, locationForm, setLocation
   const fetchProvinsi = async () => {
     setLoadingProvinsi(true);
     try {
-      const response = await fetch('http://localhost:4000/api/wilayah/provinsi');
+      const response = await fetch(`${API_BASE_URL}/api/wilayah/provinsi`);
       if (response.ok) {
         const data = await response.json();
         setProvinsiList(data);
@@ -303,7 +304,7 @@ export default function LocationModal({ show, setShow, locationForm, setLocation
     }
     setLoadingKabupaten(true);
     try {
-      const response = await fetch(`http://localhost:4000/api/wilayah/kabupaten/${id_provinsi}`);
+      const response = await fetch(`${API_BASE_URL}/api/wilayah/kabupaten/${id_provinsi}`);
       if (response.ok) {
         const data = await response.json();
         setKabupatenList(data);
@@ -322,7 +323,7 @@ export default function LocationModal({ show, setShow, locationForm, setLocation
     }
     setLoadingKecamatan(true);
     try {
-      const response = await fetch(`http://localhost:4000/api/wilayah/kecamatan/${id_kabupaten}`);
+      const response = await fetch(`${API_BASE_URL}/api/wilayah/kecamatan/${id_kabupaten}`);
       if (response.ok) {
         const data = await response.json();
         setKecamatanList(data);
@@ -341,7 +342,7 @@ export default function LocationModal({ show, setShow, locationForm, setLocation
     }
     setLoadingDesa(true);
     try {
-      const response = await fetch(`http://localhost:4000/api/wilayah/desa/${id_kecamatan}`);
+      const response = await fetch(`${API_BASE_URL}/api/wilayah/desa/${id_kecamatan}`);
       if (response.ok) {
         const data = await response.json();
         setDesaList(data);
@@ -434,7 +435,7 @@ export default function LocationModal({ show, setShow, locationForm, setLocation
       let response;
       if (editingId) {
         // Lokasi sudah tersimpan - gunakan endpoint yang update database
-        response = await fetch(`http://localhost:4000/api/locations/${editingId}/calculate-distance`, {
+        response = await fetch(`${API_BASE_URL}/api/locations/${editingId}/calculate-distance`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -445,7 +446,7 @@ export default function LocationModal({ show, setShow, locationForm, setLocation
         });
       } else {
         // Lokasi baru - gunakan endpoint preview (tidak simpan ke database)
-        response = await fetch('http://localhost:4000/api/calculate-distance-preview', {
+        response = await fetch(`${API_BASE_URL}/api/calculate-distance-preview`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { ThemeContext } from '../App';
+import API_BASE_URL from '../config/api';
 import { 
   MapPin, 
   User, 
@@ -95,7 +96,7 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/api/akun/${user.id_akun}/password`, {
+      const res = await fetch(`${API_BASE_URL}/api/akun/${user.id_akun}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -141,7 +142,7 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
     const reader = new FileReader();
     reader.onloadend = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/akun/${user.id_akun}/foto`, {
+        const res = await fetch(`${API_BASE_URL}/api/akun/${user.id_akun}/foto`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ foto: reader.result })
@@ -176,7 +177,7 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
 
   const fetchPeriodeList = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/periode');
+      const response = await fetch(`${API_BASE_URL}/api/periode`);
       if (response.ok) {
         const data = await response.json();
         setPeriodeList(data);
@@ -190,7 +191,7 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
     setIsLoading(true);
     try {
       // Fetch lokasi data dari tabel data_lokasi_kkn (same endpoint as Lokasi staff)
-      let url = 'http://localhost:4000/api/locations-with-distance';
+      let url = `${API_BASE_URL}/api/locations-with-distance`;
       const params = [];
       if (periodeFilter) {
         params.push(`id_periode=${periodeFilter}`);
@@ -205,12 +206,12 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
       setLocationData(Array.isArray(lokasiData) ? lokasiData : []);
 
       // Fetch riwayat penempatan dari tabel hasil_autogrup
-      const riwayatRes = await fetch('http://localhost:4000/autogroup/hasil');
+      const riwayatRes = await fetch(`${API_BASE_URL}/autogroup/hasil`);
       const riwayatJson = await riwayatRes.json();
       setRiwayatData(Array.isArray(riwayatJson) ? riwayatJson : []);
 
       // Fetch statistik mahasiswa dari tabel data_peserta_kkn
-      const statsRes = await fetch('http://localhost:4000/mahasiswa/statistik');
+      const statsRes = await fetch(`${API_BASE_URL}/mahasiswa/statistik`);
       const statsData = await statsRes.json();
       
       // Stats akan dihitung ulang berdasarkan filter di render
@@ -238,7 +239,7 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
     setDetailSummary([]);
     setDetailLoading(true);
     try {
-      const res = await fetch(`http://localhost:4000/autogroup/hasil/${riwayat.id_hasil}/detail`);
+      const res = await fetch(`${API_BASE_URL}/autogroup/hasil/${riwayat.id_hasil}/detail`);
       if (!res.ok) throw new Error('Gagal mengambil detail');
       const data = await res.json();
       
@@ -266,7 +267,7 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
   const handleDownloadReport = async (riwayat) => {
     try {
       // Download structured Excel from backend
-      const response = await fetch(`http://localhost:4000/autogroup/hasil/${riwayat.id_hasil}/export-excel`);
+      const response = await fetch(`${API_BASE_URL}/autogroup/hasil/${riwayat.id_hasil}/export-excel`);
       
       if (!response.ok) {
         throw new Error('Gagal mengunduh file Excel');

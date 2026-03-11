@@ -1,6 +1,7 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Moon, Sun, User, Mail, Building2, MapPin, Lock, Camera, Eye, EyeOff, ChevronDown, IdCard, ChevronRight, Menu, X } from 'lucide-react';
 import { ThemeContext } from '../App';
+import API_BASE_URL from '../config/api';
 
 export default function Header({ user, onLogout, breadcrumb = [], isSidebarCollapsed = false, setIsSidebarCollapsed }) {
   const { isDarkMode, setIsDarkMode } = useContext(ThemeContext);
@@ -50,7 +51,7 @@ export default function Header({ user, onLogout, breadcrumb = [], isSidebarColla
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/api/akun/${user.id_akun}/password`, {
+      const res = await fetch(`${API_BASE_URL}/api/akun/${user.id_akun}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -93,7 +94,7 @@ export default function Header({ user, onLogout, breadcrumb = [], isSidebarColla
     const reader = new FileReader();
     reader.onloadend = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/akun/${user.id_akun}/foto`, {
+        const res = await fetch(`${API_BASE_URL}/api/akun/${user.id_akun}/foto`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ foto: reader.result })
