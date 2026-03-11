@@ -523,19 +523,19 @@ export default function ManajemenDosen({ dosenViewMode, setDosenViewMode }) {
             <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-sm`}>
               <p className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-1`}>TOTAL DOSEN</p>
               <p className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                {dosenList.length}
+                {filteredDosen.length}
               </p>
             </div>
             <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-sm`}>
               <p className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-1`}>AKTIF</p>
               <p className={`text-2xl font-bold text-green-600`}>
-                {dosenList.filter(d => d.is_active === 1).length}
+                {filteredDosen.filter(d => d.is_active === 1).length}
               </p>
             </div>
             <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-sm`}>
               <p className={`text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-1`}>NON-AKTIF</p>
               <p className={`text-2xl font-bold text-red-600`}>
-                {dosenList.filter(d => d.is_active === 0).length}
+                {filteredDosen.filter(d => d.is_active === 0).length}
               </p>
             </div>
           </div>
@@ -601,7 +601,7 @@ export default function ManajemenDosen({ dosenViewMode, setDosenViewMode }) {
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
               >
                 <option value="all">Semua Periode</option>
-                {periodeList.slice(0, 3).map(periode => (
+                {periodeList.map(periode => (
                   <option key={periode.id_periode} value={periode.id_periode}>
                     {periode.nama_periode} {periode.is_active ? '✓' : ''}
                   </option>

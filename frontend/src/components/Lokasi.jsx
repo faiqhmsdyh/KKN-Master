@@ -1089,7 +1089,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
                 }`}
               >
                 <option value="">-- Pilih Periode (opsional) --</option>
-                {periodeList.slice(0, 3).map(p => (
+                {periodeList.map(p => (
                   <option key={p.id_periode} value={p.id_periode}>
                     {p.nama_periode} {p.is_active ? '✓' : ''}
                   </option>
@@ -1164,11 +1164,12 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
               value={kabupatenFilter}
               onChange={(e) => setKabupatenFilter(e.target.value)}
               disabled={!provinsiFilter}
+              title={!provinsiFilter ? 'Pilih Provinsi terlebih dahulu' : ''}
               className={isDarkMode 
                 ? `px-3 py-2 bg-gray-900/50 border border-gray-700 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${!provinsiFilter ? 'opacity-50 cursor-not-allowed' : ''}` 
                 : `px-3 py-2 bg-white/80 border border-gray-300 text-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${!provinsiFilter ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <option value="">Kabupaten</option>
+              <option value="">{provinsiFilter ? 'Semua Kabupaten' : 'Pilih Provinsi dulu'}</option>
               {kabupatenList.map(kab => (
                 <option key={kab.id_kabupaten} value={kab.id_kabupaten}>{kab.nama}</option>
               ))}
@@ -1183,7 +1184,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
                 : "px-3 py-2 bg-white/80 border border-gray-300 text-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}
             >
               <option value="">Semua Periode</option>
-              {periodeList.slice(0, 3).map(periode => (
+              {periodeList.map(periode => (
                 <option key={periode.id_periode} value={periode.id_periode}>
                   {periode.nama_periode} {periode.is_active ? '✓' : ''}
                 </option>
@@ -1626,7 +1627,7 @@ export default function Lokasi({ setShowLocationModal, locationData, setLocation
                     } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   >
                     <option value="">-- Pilih Periode (opsional) --</option>
-                    {periodeList.slice(0, 3).map(periode => (
+                    {periodeList.map(periode => (
                       <option key={periode.id_periode} value={periode.id_periode}>
                         {periode.nama_periode} ({periode.tahun_akademik || '-'})
                         {periode.is_active ? ' ✓ Aktif' : ''}

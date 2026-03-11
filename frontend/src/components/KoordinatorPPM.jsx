@@ -47,6 +47,9 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
   const [activeSection, setActiveSection] = useState('lokasi');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [kabupatenFilter, setKabupatenFilter] = useState(''); // Filter kabupaten
+  const [periodeFilter, setPeriodeFilter] = useState(''); // Filter periode
+  const [provinsiFilter, setProvinsiFilter] = useState(''); // Filter provinsi
+  const [periodeList, setPeriodeList] = useState([]); // List of available periodes
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -163,14 +166,41 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchPeriodeList();
   }, []);
+
+  // Refetch lokasi when periode filter changes
+  useEffect(() => {
+    fetchData();
+  }, [periodeFilter]);
+
+  const fetchPeriodeList = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/periode');
+      if (response.ok) {
+        const data = await response.json();
+        setPeriodeList(data);
+      }
+    } catch (err) {
+      console.error('Error fetching periode:', err);
+    }
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // Fetch lokasi data dari tabel data_lokasi_kkn
-      const lokasiRes = await fetch('http://localhost:4000/lokasi');
+      // Fetch lokasi data dari tabel data_lokasi_kkn (same endpoint as Lokasi staff)
+      let url = 'http://localhost:4000/api/locations-with-distance';
+      const params = [];
+      if (periodeFilter) {
+        params.push(`id_periode=${periodeFilter}`);
+      }
+      // Add cache buster to ensure fresh data
+      params.push(`_=${Date.now()}`);
+      if (params.length > 0) {
+        url += '?' + params.join('&');
+      }
+      const lokasiRes = await fetch(url);
       const lokasiData = await lokasiRes.json();
       setLocationData(Array.isArray(lokasiData) ? lokasiData : []);
 
@@ -183,6 +213,7 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
       const statsRes = await fetch('http://localhost:4000/mahasiswa/statistik');
       const statsData = await statsRes.json();
       
+      // Stats akan dihitung ulang berdasarkan filter di render
       setStats({
         total_lokasi: lokasiData?.length || 0,
         total_mahasiswa: statsData?.total || 0,
@@ -269,21 +300,47 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
     }
   };
 
-  // Get unique kabupaten list for filter
+  // Get unique kabupaten list for filter (filtered by provinsi if selected)
   const getKabupatenList = () => {
     if (!locationData || locationData.length === 0) return [];
     const kabupatenSet = new Set();
     locationData.forEach(loc => {
-      if (loc.kabupaten) kabupatenSet.add(loc.kabupaten);
+      // Only include kabupaten from selected provinsi
+      if (loc.kabupaten && (!provinsiFilter || loc.provinsi === provinsiFilter)) {
+        kabupatenSet.add(loc.kabupaten);
+      }
     });
     return Array.from(kabupatenSet).sort();
   };
 
-  // Get filtered locations based on kabupaten filter
+  // Get unique provinsi list for filter
+  const getProvinsiList = () => {
+    if (!locationData || locationData.length === 0) return [];
+    const provinsiSet = new Set();
+    locationData.forEach(loc => {
+      if (loc.provinsi) {
+        provinsiSet.add(loc.provinsi);
+      }
+    });
+    return Array.from(provinsiSet).sort();
+  };
+
+  // Get filtered locations based on all filters
   const getFilteredLocations = () => {
     if (!locationData) return [];
-    if (!kabupatenFilter) return locationData;
-    return locationData.filter(loc => loc.kabupaten === kabupatenFilter);
+    
+    return locationData.filter(loc => {
+      // Filter by periode
+      const matchPeriode = !periodeFilter || loc.id_periode === parseInt(periodeFilter);
+      
+      // Filter by kabupaten
+      const matchKabupaten = !kabupatenFilter || loc.kabupaten === kabupatenFilter;
+      
+      // Filter by provinsi
+      const matchProvinsi = !provinsiFilter || loc.provinsi === provinsiFilter;
+      
+      return matchPeriode && matchKabupaten && matchProvinsi;
+    });
   };
   
   // Pagination helpers
@@ -299,10 +356,18 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
     return Math.ceil(filtered.length / itemsPerPage);
   };
   
+  // Reset kabupaten filter when provinsi changes
+  useEffect(() => {
+    if (provinsiFilter) {
+      // If provinsi changes, reset kabupaten filter
+      setKabupatenFilter('');
+    }
+  }, [provinsiFilter]);
+  
   // Reset to page 1 when filter or itemsPerPage changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [kabupatenFilter, itemsPerPage]);
+  }, [kabupatenFilter, periodeFilter, provinsiFilter, itemsPerPage]);
   
   // Save itemsPerPage to localStorage
   useEffect(() => {
@@ -364,7 +429,7 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
         <StatCard 
           icon={MapPin} 
           label="Total Lokasi" 
-          value={stats.total_lokasi} 
+          value={getFilteredLocations().length} 
           unit="Titik"
           color="bg-gradient-to-br from-emerald-500 to-emerald-600" 
         />
@@ -423,25 +488,74 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
               </div>
             </div>
 
-            {/* Filter Kabupaten */}
-            <div className="flex items-center gap-3">
-              <label className={`text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Filter Kabupaten:
-              </label>
-              <select
-                value={kabupatenFilter}
-                onChange={(e) => setKabupatenFilter(e.target.value)}
-                className={`px-4 py-2 rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  isDarkMode 
-                    ? 'bg-gray-700 border-gray-600 text-white' 
-                    : 'bg-white border-gray-300 text-gray-900'
-                }`}
-              >
-                <option value="">Semua Kabupaten</option>
-                {getKabupatenList().map((kab, idx) => (
-                  <option key={idx} value={kab}>{kab}</option>
-                ))}
-              </select>
+            {/* Filters */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Filter Periode */}
+              <div className="flex items-center gap-2">
+                <label className={`text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Periode:
+                </label>
+                <select
+                  value={periodeFilter}
+                  onChange={(e) => setPeriodeFilter(e.target.value)}
+                  className={`px-4 py-2 rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                >
+                  <option value="">Semua Periode</option>
+                  {periodeList.map(periode => (
+                    <option key={periode.id_periode} value={periode.id_periode}>
+                      {periode.nama_periode} {periode.is_active ? '✓' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Filter Provinsi */}
+              <div className="flex items-center gap-2">
+                <label className={`text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Provinsi:
+                </label>
+                <select
+                  value={provinsiFilter}
+                  onChange={(e) => setProvinsiFilter(e.target.value)}
+                  className={`px-4 py-2 rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                >
+                  <option value="">Semua Provinsi</option>
+                  {getProvinsiList().map((prov, idx) => (
+                    <option key={idx} value={prov}>{prov}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Filter Kabupaten */}
+              <div className="flex items-center gap-2">
+                <label className={`text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Kabupaten:
+                </label>
+                <select
+                  value={kabupatenFilter}
+                  onChange={(e) => setKabupatenFilter(e.target.value)}
+                  disabled={!provinsiFilter}
+                  className={`px-4 py-2 rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  } ${!provinsiFilter ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  title={!provinsiFilter ? 'Pilih Provinsi terlebih dahulu' : ''}
+                >
+                  <option value="">{provinsiFilter ? 'Semua Kabupaten' : 'Pilih Provinsi dulu'}</option>
+                  {getKabupatenList().map((kab, idx) => (
+                    <option key={idx} value={kab}>{kab}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -463,6 +577,9 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
                       <th className="px-6 py-4 text-left font-semibold text-gray-400 uppercase tracking-wider text-xs">Desa/Kelurahan</th>
                       <th className="px-6 py-4 text-left font-semibold text-gray-400 uppercase tracking-wider text-xs">Kecamatan</th>
                       <th className="px-6 py-4 text-left font-semibold text-gray-400 uppercase tracking-wider text-xs">Kabupaten/Kota</th>
+                      <th className="px-6 py-4 text-left font-semibold text-gray-400 uppercase tracking-wider text-xs">Provinsi</th>
+                      <th className="px-6 py-4 text-left font-semibold text-gray-400 uppercase tracking-wider text-xs">Periode</th>
+                      <th className="px-6 py-4 text-left font-semibold text-gray-400 uppercase tracking-wider text-xs">Jarak Faskes</th>
                       <th className="px-6 py-4 text-left font-semibold text-gray-400 uppercase tracking-wider text-xs">Koordinat GPS</th>
                     </tr>
                   </thead>
@@ -483,6 +600,12 @@ export default function KoordinatorPPM({ user, setActiveTab }) {
                         </td>
                         <td className={isDarkMode ? "px-6 py-4 text-gray-300" : "px-6 py-4 text-gray-600"}>
                           {lokasi.kabupaten || '-'}
+                        </td>
+                        <td className={isDarkMode ? "px-6 py-4 text-gray-300" : "px-6 py-4 text-gray-600"}>
+                          {lokasi.provinsi || '-'}
+                        </td>
+                        <td className={isDarkMode ? "px-6 py-4 text-gray-300" : "px-6 py-4 text-gray-600"}>
+                          {lokasi.nama_periode || '-'}
                         </td>
                         <td className={isDarkMode ? "px-6 py-4 text-gray-400 text-xs" : "px-6 py-4 text-gray-500 text-xs"}>
                           {lokasi.latitude && lokasi.longitude 
